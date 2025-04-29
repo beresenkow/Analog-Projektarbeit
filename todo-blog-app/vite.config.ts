@@ -2,6 +2,7 @@
 
 import { defineConfig } from 'vite';
 import analog from '@analogjs/platform';
+import { routes } from '@analogjs/router';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -11,7 +12,16 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     mainFields: ['module'],
   },
-  plugins: [analog()],
+  plugins: [analog({
+    prerender: {
+      routes: [
+        '/',
+        '/blog',
+        '/blog/my-first-post',
+        '/about'
+      ]
+    }
+  })],
   test: {
     globals: true,
     environment: 'jsdom',
