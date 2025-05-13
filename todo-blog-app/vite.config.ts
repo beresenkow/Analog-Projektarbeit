@@ -17,7 +17,8 @@ export default defineConfig(({ mode }) => ({
       routes: [
         '/',
         '/blog',
-        '/blog/my-first-post',
+        '/blog/die-bedeutung-von-lebenslangem-lernen',
+        '/todo',
         '/about'
       ]
     }

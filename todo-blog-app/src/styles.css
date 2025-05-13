@@ -78,3 +78,13 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.page-title {
+  display: inline;
+}
+
+.menu-panel {
+  display: inline;
+  text-decoration: none;
+  margin: 30px;
+}

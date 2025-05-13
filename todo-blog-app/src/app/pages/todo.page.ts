@@ -5,7 +5,7 @@ import { RouterLink, RouterOutlet } from "@angular/router";
     standalone: true,
     imports: [RouterOutlet, RouterLink],
     template: `
-        <h1 class="page-title">Blog</h1>
+        <h1 class="page-title">Todos</h1>
 
         <a routerLink="/blog" class="menu-panel">Blogs</a>
         <a routerLink="/todo" class="menu-panel">Todos</a>
@@ -14,4 +14,4 @@ import { RouterLink, RouterOutlet } from "@angular/router";
         <router-outlet />
     `,
 })
-export default class BlogPage {}
+export default class LandingPage {}
