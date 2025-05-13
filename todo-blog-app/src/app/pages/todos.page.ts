@@ -1,13 +1,13 @@
 import { Component } from "@angular/core";
-import { RouterOutlet } from "@angular/router";
+import { RouterLink, RouterOutlet } from "@angular/router";
 
 @Component({
     standalone: true,
     imports: [RouterOutlet],
     template: `
-        <h1>Blog</h1>
+        <h1>Fine Todos here</h1>
 
         <router-outlet />
     `,
 })
-export default class BlogPage {}
+export default class LandingPage {}

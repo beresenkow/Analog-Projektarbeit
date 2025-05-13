@@ -10,6 +10,7 @@ import { BlogPost } from "src/app/models/post";
     template: `
         <div *ngIf="post$ | async as post">
             <h2>{{ post.attributes.title }}</h2>
+            <h3>{{ post.attributes.description }}</h3>
 
             <analog-markdown [content]="post.content" />
         </div>

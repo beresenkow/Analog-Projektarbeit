@@ -1,0 +1,9 @@
+h1 {
+  display: inline;
+}
+
+a {
+    display: inline;
+    text-decoration: none;
+    margin: 30px;
+}

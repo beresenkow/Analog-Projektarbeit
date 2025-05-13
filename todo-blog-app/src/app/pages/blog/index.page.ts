@@ -14,6 +14,7 @@ import { BlogPost } from "src/app/models/post";
         <ul>
             <li *ngFor="let post of posts">
                 <a [routerLink]="['/blog', post.slug]">{{ post.attributes.title }}</a>
+                <P [routerLink]="['/blog', post.slug]">{{ post.attributes.description }}</P>
             </li>
         </ul>
     `
