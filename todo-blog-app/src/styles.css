@@ -88,3 +88,10 @@ button:focus-visible {
   text-decoration: none;
   margin: 30px;
 }
+
+.menu-panel-active {
+  display: inline;
+  text-decoration: none;
+  margin: 30px;
+  color: darkgoldenrod;
+}

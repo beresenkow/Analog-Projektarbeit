@@ -8,7 +8,7 @@ import { RouterLink, RouterOutlet } from "@angular/router";
         <h1 class="page-title">Todos</h1>
 
         <a routerLink="/blog" class="menu-panel">Blogs</a>
-        <a routerLink="/todo" class="menu-panel">Todos</a>
+        <a class="menu-panel-active">Todos</a>
         <a routerLink="/about" class="menu-panel">About Me</a>
 
         <router-outlet />
