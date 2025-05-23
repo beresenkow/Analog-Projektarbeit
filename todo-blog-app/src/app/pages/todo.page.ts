@@ -11,6 +11,8 @@ import { RouterLink, RouterOutlet } from "@angular/router";
         <a class="menu-panel-active">Todos</a>
         <a routerLink="/about" class="menu-panel">About Me</a>
 
+        <h2>Wichtige Todos</h2>
+
         <router-outlet />
     `,
 })

@@ -1,7 +1,7 @@
 ---
-title: Die Bedeutung von lebenslangem Lernen
-description: In diesem Blog-Eintrag teile ich  meine Gedanken über die Bedeutung von lebenslangem Lernen und wie es  mein Leben bereichert hat.
-[slug]: die-bedeutung-von-lebenslangem-lernen
+title: Test
+description: Ein Test
+[slug]: test
 ---
 
 <img src="/content/img_die_bedeutung_von_lebenslangem_lernen.jpg" alt="img_die_bedeutung_von_lebenslangem_lernen" width="300" />
