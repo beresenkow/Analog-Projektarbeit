@@ -1,11 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 import { UserService, User } from './../user.services';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule],
   selector: 'app-users',
   template: `
     <h1>Benutzer</h1>
@@ -35,7 +34,7 @@ export default class UsersPage {
   loadUsers() {
     this.userService.getAll().subscribe({
       next: (data) => (this.users = data),
-      error: (err) => console.error('Fehler beim Laden der Benutzer:', err),
+      error: (err) => console.error('Could not load users:', err),
     });
   }
 
@@ -44,7 +43,7 @@ export default class UsersPage {
   showFirstUser() {
     this.userService.getById(1).subscribe({
       next: (data) => (this.currentUser = data),
-      error: (err) => console.error('Fehler beim Laden des Benutzers:', err),
+      error: (err) => console.error('Could not load user:', err),
     })
   }
 
@@ -60,7 +59,7 @@ export default class UsersPage {
       next: (createdUser) => {
         this.users.push(createdUser);
       },
-      error: (err) => console.error('Fehler beim Erstellen des Benutzers:', err),
+      error: (err) => console.error('Error while inserting user:', err),
     });
   }
 }

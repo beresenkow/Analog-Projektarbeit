@@ -1,0 +1,13 @@
+.input-class {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-class label {
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.submit-class {
+  margin-top: 16px;
+}
