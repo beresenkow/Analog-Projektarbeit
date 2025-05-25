@@ -6,12 +6,15 @@ const prisma = new PrismaClient();
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
-  const user = await prisma.user.create({
+  // In echt: validieren & hashen
+  const newUser = await prisma.user.create({
     data: {
       name: body.name,
       email: body.email,
+      password: body.password,
+      isAdmin: body.isAdmin ?? false,
     },
   });
 
-  return user;
+  return newUser;
 });

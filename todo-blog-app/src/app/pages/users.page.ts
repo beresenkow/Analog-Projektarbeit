@@ -1,4 +1,3 @@
-import { NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -53,6 +52,8 @@ export default class UsersPage {
     const newUser = {
       name: 'Max Mustermann',
       email: `max${Date.now()}@example.com`,
+      password: 'secret123',
+      isAdmin: true,
     };
 
     this.userService.create(newUser).subscribe({
