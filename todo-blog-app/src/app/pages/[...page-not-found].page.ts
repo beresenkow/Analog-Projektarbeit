@@ -5,7 +5,7 @@ import { RouterLink, RouterOutlet } from "@angular/router";
     standalone: true,
     imports: [],
     template: `
-        <h1>No Page</h1>
+        <h1>Page not found</h1>
     `,
 })
 export default class NoPage {}
