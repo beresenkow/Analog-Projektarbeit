@@ -25,7 +25,7 @@ import { UserService } from '../../user.services';
           <input type="password" id="repeat-password" name="repeat-password" [(ngModel)]="repeatPassword" required />
         </div>
 
-        <button class="submit-class" [disabled]="!isFormVaild()" (click)="createAccount()" routerLink="/account">Cretae Account</button>
+        <button class="submit-class" [disabled]="!isFormValid()" (click)="createAccount()" routerLink="/account">Cretae Account</button>
 
         <router-outlet />
     `,
@@ -42,13 +42,13 @@ export default class CreateAccountPage {
   repeatPassword: string = '';
 
 
-  isFormVaild(): boolean {
+  isFormValid(): boolean {
     return !!this.name && !!this.email && !!this.password && !!this.repeatPassword &&
            this.password === this.repeatPassword;
   }
 
   createAccount() {
-    if (this.isFormVaild()) {
+    if (this.isFormValid()) {
       const newUser = {
         name: this.name,
         email: this.email,

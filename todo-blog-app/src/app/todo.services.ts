@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 
 export interface Todo {
   id: number;
-  name: string;
+  title: string;
   description: string;
   linkedBlog: string;
 }

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
   const newTodo = await prisma.todo.create({
     data: {
-      name: body.name,
+      title: body.title,
       description: body.description,
       linkedBlog: body.linkedBlog,
     },
