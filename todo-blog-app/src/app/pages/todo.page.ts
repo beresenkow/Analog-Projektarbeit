@@ -83,6 +83,7 @@ export default class TodoPage {
       title: this.title,
       description: this.description,
       linkedBlog: this.linkedBlog,
+      done: false,
     };
 
     this.todoService.create(newTodo).subscribe({

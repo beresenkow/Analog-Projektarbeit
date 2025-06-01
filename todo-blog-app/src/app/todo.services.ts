@@ -8,6 +8,7 @@ export interface Todo {
   title: string;
   description: string;
   linkedBlog: string;
+  done: boolean;
 }
 
 @Injectable({ providedIn: 'root' })

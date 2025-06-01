@@ -26,4 +26,5 @@ model Todo {
   title       String
   description String
   linkedBlog  String
+  done        Boolean @default(false)
 }

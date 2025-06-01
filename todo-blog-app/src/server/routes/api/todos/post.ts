@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
       title: body.title,
       description: body.description,
       linkedBlog: body.linkedBlog,
+      done: body.done,
     },
   });
 
