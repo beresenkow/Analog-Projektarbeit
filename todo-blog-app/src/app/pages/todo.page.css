@@ -1,0 +1,23 @@
+.input-class {
+  display: flex;
+  flex-direction: column;
+  margin-top: 24px;
+  margin-bottom: 32px;
+}
+
+.input-class label {
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.open-button {
+  display: flex;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.submit-class {
+  margin-top: 16px;
+}

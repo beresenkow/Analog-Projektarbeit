@@ -16,9 +16,11 @@ import { BlogPost } from '../models/post';
         <a class="menu-panel-active">Todos</a>
         <a routerLink="/about" class="menu-panel">About Me</a>
 
-        <button (click)="openTodoCreation()" [hidden]="creatingNewTodo">Create new Todo</button>
+        <button class="open-button" (click)="openTodoCreation()" [class.hidden]="creatingNewTodo">Create new Todo</button>
 
-        <div *ngIf="creatingNewTodo">
+        <div class="input-class" *ngIf="creatingNewTodo">
+          <h2>Create a new Todo</h2>
+
           <label for="title">Todo Title</label>
           <input type="text" id="title" name="title" [(ngModel)]="title" required/>
 
@@ -43,6 +45,9 @@ import { BlogPost } from '../models/post';
 
         <router-outlet />
     `,
+    styles: [`
+      @import 'todo.page.css';
+    `],
 })
 export default class TodoPage {
   private todoService = inject(TodoService);
