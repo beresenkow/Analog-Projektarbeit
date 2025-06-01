@@ -27,7 +27,7 @@ import { UserService } from '../../user.services';
         @import 'account.css';
     `]
 })
-export default class CreateAccountPage {
+export default class LogInPage {
   private userService = inject(UserService);
 
   email: string = '';

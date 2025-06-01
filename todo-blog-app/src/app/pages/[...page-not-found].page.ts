@@ -8,4 +8,4 @@ import { RouterLink, RouterOutlet } from "@angular/router";
         <h1>Page not found</h1>
     `,
 })
-export default class NoPage {}
+export default class PageNotFoundPage {}
