@@ -10,8 +10,14 @@
   margin-bottom: 8px;
 }
 
-.open-button {
+.buttons {
   display: flex;
+  flex-direction: row;
+  padding: 24px;
+}
+
+button {
+  margin: 12px;
 }
 
 .hidden {

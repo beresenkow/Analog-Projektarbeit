@@ -5,6 +5,7 @@ import { TodoService, Todo } from "../todo.services";
 import { FormsModule } from '@angular/forms';
 import { injectContentFiles } from '@analogjs/content';
 import { BlogPost } from '../models/post';
+import { ac } from 'vitest/dist/chunks/reporters.d.79o4mouw.js';
 
 @Component({
     standalone: true,
@@ -16,9 +17,11 @@ import { BlogPost } from '../models/post';
         <a class="menu-panel-active">Todos</a>
         <a routerLink="/about" class="menu-panel">About Me</a>
 
-        <button class="open-button" (click)="openTodoCreation()" [class.hidden]="creatingNewTodo">Create new Todo</button>
-        <button (click)="switchTodoEditOptions(true)" [class.hidden]="editingTodos">Edit Todos</button>
-        <button (click)="switchTodoEditOptions(false)" [class.hidden]="!editingTodos">Done</button>
+        <div class="buttons">
+          <button class="open-button" (click)="openTodoCreation()" [class.hidden]="creatingNewTodo">Create new Todo</button>
+          <button *ngIf="!creatingNewTodo" (click)="switchTodoEditOptions(true)" [class.hidden]="editingTodos">Edit Todos</button>
+          <button (click)="switchTodoEditOptions(false)" [class.hidden]="!editingTodos">Done</button>
+        </div>
 
         <div class="input-class" *ngIf="creatingNewTodo">
           <h2>Create a new Todo</h2>
@@ -41,9 +44,36 @@ import { BlogPost } from '../models/post';
 
         <ul>
           <li *ngFor="let todo of todos">
-            {{ todo.title }} – {{ todo.description }}
-            <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
-            <button *ngIf="editingTodos" (click)="deleteTodo(todo.id)">⛔</button>
+            <div *ngIf="!editingSingelTodo || editingSingelTodo && currentlyEditedTodo !== todo.id">
+              {{ todo.title }} – {{ todo.description }}
+              
+              <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
+              <button [id]="todo.id" [name]="'edit-' + todo.title" *ngIf="editingTodos" (click)="openEditTodo(todo)">🖊</button>
+              <button [id]="todo.id" [name]="'delete-' + todo.title"  *ngIf="editingTodos" (click)="deleteTodo(todo.id)">⛔</button>
+            </div>
+            <div *ngIf="editingSingelTodo && currentlyEditedTodo === todo.id">
+              <div class="input-class">
+                <h2>Edit Todo {{ todo.title }}</h2>
+
+                <label for="title">Todo Title</label>
+                <input type="text" id="title" name="title" [(ngModel)]="title" required/>
+
+                <label for="description">Todo Description</label>
+                <input type="text" id="description" name="description" [(ngModel)]="description" required/>
+
+                <label for="linkedBlog">Todo Description</label>
+                <select id="linkedBlog" name="linkedBlog" [(ngModel)]="linkedBlog">
+                  <option value="" disabled selected>Select a Blog entry for this Todo</option>
+                  <option *ngFor="let option of options" [value]="option.value">{{ option.label }}</option>
+                </select>
+              </div>
+
+              <label [for]="todo.id">Todo Done</label>
+              <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
+              <button [id]="todo.id" [name]="'save-' + todo.title" (click)="editTodoFinal(todo, false)" [disabled]="!isFormValid()">Save</button>
+              <button [id]="todo.id" [name]="'cancel-' + todo.title" (click)="editTodoFinal(todo, true)">Cancel</button>
+              <button [id]="todo.id" [name]="'delete-' + todo.title" (click)="deleteTodo(todo.id)">⛔</button>
+            </div>
           </li>
         </ul>
 
@@ -59,6 +89,8 @@ export default class TodoPage {
 
   creatingNewTodo: boolean = false;
   editingTodos: boolean = false;
+  editingSingelTodo: boolean = false;
+  currentlyEditedTodo: number = 0;
 
   title: string = '';
   description: string = '';
@@ -81,11 +113,50 @@ export default class TodoPage {
   }
 
   openTodoCreation() {
+    this.editingTodos = false;
+    this.editingSingelTodo = false;
+    this.resetForms();
+
     this.creatingNewTodo = true;
   }
 
   switchTodoEditOptions(active: boolean) {
     this.editingTodos = active;
+
+    if (active === false) {
+      this.editingSingelTodo = false;
+    }
+  }
+
+  openEditTodo(todo: Todo) {
+    this.title = todo.title;
+    this.description = todo.description;
+    this.linkedBlog = todo.linkedBlog;
+
+    this.currentlyEditedTodo = todo.id;
+    this.editingSingelTodo = true;
+  }
+
+  editTodoFinal(todo: Todo, cancel: boolean) {
+    this.editingSingelTodo = false;
+    console.log("ji");
+    if (cancel) {
+      this.resetForms();
+      return;
+    }
+
+    console.log("fsdji");
+
+    const updatedTodo = {
+      id: todo.id,
+      title: this.title,
+      description: this.description,
+      linkedBlog: this.linkedBlog,
+      done: todo.done
+    }
+
+    this.updateTodo(updatedTodo);
+    this.resetForms();
   }
 
   addTodo() {
@@ -153,7 +224,6 @@ export default class TodoPage {
       }
     });
   }
-
 
   resetForms() {
     this.creatingNewTodo = false;
