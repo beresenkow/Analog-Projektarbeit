@@ -11,19 +11,30 @@ export interface Todo {
   done: boolean;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class TodoService {
+  private apiUrl = '/api/todos';
   private http = inject(HttpClient);
 
   getAll(): Observable<Todo[]> {
-    return this.http.get<Todo[]>('/api/todos');
+    return this.http.get<Todo[]>(this.apiUrl);
   }
 
   getById(id: number): Observable<Todo> {
-    return this.http.get<Todo>(`/api/todos/${id}`);
+    return this.http.get<Todo>(`${this.apiUrl}/${id}`);
   }
 
-  create(user: Omit<Todo, 'id'>): Observable<Todo> {
-    return this.http.post<Todo>('/api/todos/post', user);
+  create(todo: Omit<Todo, 'id'>): Observable<Todo> {
+    return this.http.post<Todo>(`${this.apiUrl}/post`, todo);
+  }
+
+  update(todo: Todo): Observable<Todo> {
+    return this.http.put<Todo>(`${this.apiUrl}/update`, todo);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/delete/${id}`);
   }
 }

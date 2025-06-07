@@ -17,6 +17,8 @@ import { BlogPost } from '../models/post';
         <a routerLink="/about" class="menu-panel">About Me</a>
 
         <button class="open-button" (click)="openTodoCreation()" [class.hidden]="creatingNewTodo">Create new Todo</button>
+        <button (click)="switchTodoEditOptions(true)" [class.hidden]="editingTodos">Edit Todos</button>
+        <button (click)="switchTodoEditOptions(false)" [class.hidden]="!editingTodos">Done</button>
 
         <div class="input-class" *ngIf="creatingNewTodo">
           <h2>Create a new Todo</h2>
@@ -40,6 +42,8 @@ import { BlogPost } from '../models/post';
         <ul>
           <li *ngFor="let todo of todos">
             {{ todo.title }} – {{ todo.description }}
+            <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
+            <button *ngIf="editingTodos" (click)="deleteTodo(todo.id)">⛔</button>
           </li>
         </ul>
 
@@ -54,6 +58,8 @@ export default class TodoPage {
   todos: Todo[] = [];
 
   creatingNewTodo: boolean = false;
+  editingTodos: boolean = false;
+
   title: string = '';
   description: string = '';
   linkedBlog: string = '';
@@ -78,6 +84,10 @@ export default class TodoPage {
     this.creatingNewTodo = true;
   }
 
+  switchTodoEditOptions(active: boolean) {
+    this.editingTodos = active;
+  }
+
   addTodo() {
     const newTodo = {
       title: this.title,
@@ -95,6 +105,55 @@ export default class TodoPage {
 
     this.resetForms();
   }
+
+  updateTodo(todo: Todo) {
+    const todoToUpdate = {
+      id: todo.id,
+      title: todo.title,
+      description: todo.description,
+      linkedBlog: todo.linkedBlog,
+      done: todo.done
+    }
+
+    this.todoService.update(todoToUpdate).subscribe({
+      next: (updatedTodo) => {
+        console.log('Todo updated successfully:', updatedTodo);
+        const index = this.todos.findIndex(t => t.id === updatedTodo.id);
+        if (index !== -1) {
+          this.todos[index] = updatedTodo;
+        }
+      },
+      error: (err) => {
+        console.error('Error updating Todo:', err);
+        const originalTodo = this.todos.find(t => t.id === todo.id);
+        if (originalTodo) {
+          todo.done = originalTodo.done;
+        }
+      }
+    });
+  }
+
+  deleteTodo(id: number) {
+    this.todoService.delete(id).subscribe({
+      next: () => {
+        console.log('Todo successfully deleted');
+        this.todos = this.todos.filter(todo => todo.id !== id);
+      },
+      error: (err) => {
+        console.error('Failed to delete todo', err);
+        let errorMessage = 'Failed to delete todo. Please try again.';
+
+        if (err.status === 404) {
+          errorMessage = 'Todo not found.';
+        } else if (err.status === 400) {
+          errorMessage = 'Invalid todo ID.';
+        }
+
+        alert(errorMessage);
+      }
+    });
+  }
+
 
   resetForms() {
     this.creatingNewTodo = false;
