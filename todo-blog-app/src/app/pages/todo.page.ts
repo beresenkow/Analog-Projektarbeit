@@ -5,7 +5,7 @@ import { TodoService, Todo } from "../todo.services";
 import { FormsModule } from '@angular/forms';
 import { injectContentFiles } from '@analogjs/content';
 import { BlogPost } from '../models/post';
-import { ac } from 'vitest/dist/chunks/reporters.d.79o4mouw.js';
+import { Router } from '@angular/router';
 
 @Component({
     standalone: true,
@@ -38,7 +38,7 @@ import { ac } from 'vitest/dist/chunks/reporters.d.79o4mouw.js';
             <option *ngFor="let option of options" [value]="option.value">{{ option.label }}</option>
           </select>
 
-          <button class="submit-class" [disabled]="!isFormValid()" (click)="addTodo()">Add new Todo</button>
+          <button class="submit-class" [disabled]="!isFormValid()" (click)="addTodoFromInput()">Add new Todo</button>
           <button class="submit-class" (click)="resetForms()">Cancel</button>
         </div>
 
@@ -46,7 +46,7 @@ import { ac } from 'vitest/dist/chunks/reporters.d.79o4mouw.js';
           <li *ngFor="let todo of todos">
             <div *ngIf="!editingSingelTodo || editingSingelTodo && currentlyEditedTodo !== todo.id">
               {{ todo.title }} – {{ todo.description }}
-              
+
               <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
               <button [id]="todo.id" [name]="'edit-' + todo.title" *ngIf="editingTodos" (click)="openEditTodo(todo)">🖊</button>
               <button [id]="todo.id" [name]="'delete-' + todo.title"  *ngIf="editingTodos" (click)="deleteTodo(todo.id)">⛔</button>
@@ -61,7 +61,7 @@ import { ac } from 'vitest/dist/chunks/reporters.d.79o4mouw.js';
                 <label for="description">Todo Description</label>
                 <input type="text" id="description" name="description" [(ngModel)]="description" required/>
 
-                <label for="linkedBlog">Todo Description</label>
+                <label for="linkedBlog">Linked Blog Entry for this Todo</label>
                 <select id="linkedBlog" name="linkedBlog" [(ngModel)]="linkedBlog">
                   <option value="" disabled selected>Select a Blog entry for this Todo</option>
                   <option *ngFor="let option of options" [value]="option.value">{{ option.label }}</option>
@@ -99,7 +99,7 @@ export default class TodoPage {
   posts = injectContentFiles<BlogPost>();
   options: { value: string; label: string }[] = [];
 
-  constructor() {
+  constructor(private router: Router) {
     this.loadTodos();
     this.loadBlogPosts();
   }
@@ -159,7 +159,7 @@ export default class TodoPage {
     this.resetForms();
   }
 
-  addTodo() {
+  addTodoFromInput() {
     const newTodo = {
       title: this.title,
       description: this.description,
@@ -242,6 +242,13 @@ export default class TodoPage {
         this.todos = todos;
       },
       error: (err) => console.error('Could not load todos:', err),
+    });
+  }
+
+  reloadPage() {
+    const currentUrl = this.router.url;
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate([currentUrl]);
     });
   }
 }
