@@ -27,4 +27,6 @@ model Todo {
   description String
   linkedBlog  String
   done        Boolean @default(false)
+
+  @@index([linkedBlog])
 }

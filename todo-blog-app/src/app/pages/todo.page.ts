@@ -108,7 +108,7 @@ export default class TodoPage {
     this.options.push({ value: '', label: 'None' });
 
     for (let post of this.posts) {
-      this.options.push({ value: post.attributes.title, label: post.attributes.title });
+      this.options.push({ value: post.attributes.slug, label: post.attributes.title });
     }
   }
 
