@@ -42,6 +42,7 @@ export default class LandingPage {
     console.log("User wants to create a new account");
   }
 
+  // Checks if the database is empty, then it fills the database with default values here
   loadTodos() {
     this.todoService.getAll().subscribe({
       next: (todos) => {
