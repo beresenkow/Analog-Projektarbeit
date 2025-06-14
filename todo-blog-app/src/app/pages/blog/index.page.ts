@@ -12,12 +12,15 @@ import { BlogPost } from "src/app/models/post";
         <h2>Posts</h2>
 
         <ul>
-            <li *ngFor="let post of posts">
-                <a [routerLink]="['/blog', post.slug]">{{ post.attributes.title }}</a>
-                <P [routerLink]="['/blog', post.slug]">{{ post.attributes.description }}</P>
-            </li>
+            <div class="blog-posts" *ngFor="let post of posts">
+                <h3 class="blog-entry-element" [routerLink]="['/blog', post.slug]">{{ post.attributes.title }}</h3>
+                <p [routerLink]="['/blog', post.slug]">{{ post.attributes.description }}</p>
+            </div>
         </ul>
-    `
+    `,
+    styles: [`
+        @import 'blog.page.css';
+    `]
 })
 export default class IndexPage {
     posts = injectContentFiles<BlogPost>();

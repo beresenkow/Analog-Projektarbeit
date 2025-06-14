@@ -27,3 +27,78 @@ button {
 .submit-class {
   margin-top: 16px;
 }
+
+.todos {
+  margin-left: auto;
+  margin-right: 16px;
+  margin-bottom: 24px;
+  max-width: 80%;
+  width: auto;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.todo-element {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.todo-actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.todo-element input[type="checkbox"],
+.todo-element button {
+  margin-left: 10px;
+}
+
+.input-class {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.input-class h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+}
+
+.input-class label {
+  display: block;
+  margin: 8px 0 4px;
+  font-weight: bold;
+}
+
+.input-class input[type="text"],
+.input-class select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  gap: 8px;
+}
+
+.edit-actions label {
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+}

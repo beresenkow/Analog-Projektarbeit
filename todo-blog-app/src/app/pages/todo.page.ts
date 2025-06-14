@@ -42,15 +42,17 @@ import { Router } from '@angular/router';
           <button class="submit-class" (click)="resetForms()">Cancel</button>
         </div>
 
-        <ul>
-          <li *ngFor="let todo of todos">
-            <div *ngIf="!editingSingelTodo || editingSingelTodo && currentlyEditedTodo !== todo.id">
-              {{ todo.title }} – {{ todo.description }}
-
-              <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
-              <button [id]="todo.id" [name]="'edit-' + todo.title" *ngIf="editingTodos" (click)="openEditTodo(todo)">🖊</button>
-              <button [id]="todo.id" [name]="'delete-' + todo.title"  *ngIf="editingTodos" (click)="deleteTodo(todo.id)">⛔</button>
+        <div class="todos">
+          <div *ngFor="let todo of todos">
+            <div class="todo-element" *ngIf="!editingSingelTodo || editingSingelTodo && currentlyEditedTodo !== todo.id">
+              <span>{{ todo.title }} – {{ todo.description }}</span>
+              <div class="todo-actions">
+                <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
+                <button *ngIf="editingTodos" (click)="openEditTodo(todo)">🖊</button>
+                <button *ngIf="editingTodos" (click)="deleteTodo(todo.id)">⛔</button>
+              </div>
             </div>
+
             <div *ngIf="editingSingelTodo && currentlyEditedTodo === todo.id">
               <div class="input-class">
                 <h2>Edit Todo {{ todo.title }}</h2>
@@ -66,16 +68,20 @@ import { Router } from '@angular/router';
                   <option value="" disabled selected>Select a Blog entry for this Todo</option>
                   <option *ngFor="let option of options" [value]="option.value">{{ option.label }}</option>
                 </select>
-              </div>
 
-              <label [for]="todo.id">Todo Done</label>
-              <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
-              <button [id]="todo.id" [name]="'save-' + todo.title" (click)="editTodoFinal(todo, false)" [disabled]="!isFormValid()">Save</button>
-              <button [id]="todo.id" [name]="'cancel-' + todo.title" (click)="editTodoFinal(todo, true)">Cancel</button>
-              <button [id]="todo.id" [name]="'delete-' + todo.title" (click)="deleteTodo(todo.id)">⛔</button>
+                <div class="edit-actions">
+                  <label [for]="todo.id">Todo Done</label>
+                  <div>
+                    <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
+                    <button (click)="editTodoFinal(todo, false)" [disabled]="!isFormValid()">Save</button>
+                    <button (click)="editTodoFinal(todo, true)">Cancel</button>
+                    <button (click)="deleteTodo(todo.id)">⛔</button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </li>
-        </ul>
+          </div>
+        </div>
 
         <router-outlet />
     `,
@@ -144,8 +150,6 @@ export default class TodoPage {
       this.resetForms();
       return;
     }
-
-    console.log("fsdji");
 
     const updatedTodo = {
       id: todo.id,

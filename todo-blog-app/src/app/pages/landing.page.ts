@@ -13,11 +13,6 @@ import { HttpClient } from '@angular/common/http';
         <a routerLink="/todo">Todos</a>
         <a routerLink="/about">About Me</a>
 
-        <div>
-          <button (click)="signIn()" routerLink="/account/log-in">Sign In</button>
-          <button (click)="createAccount()" routerLink="/account/create-account">Create Account</button>
-        </div>
-
         <router-outlet />
     `,
     styles: [`
