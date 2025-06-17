@@ -1,36 +1,51 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { RouterLink, RouterOutlet } from "@angular/router";
 import { TodoService, Todo } from "../todo.services";
 import { FormsModule } from '@angular/forms';
 import { injectContentFiles } from '@analogjs/content';
 import { BlogPost } from '../models/post';
 import { Router } from '@angular/router';
+import { FormAction } from '@analogjs/router';
+
+type FormErrors =
+  | {
+      title?: string;
+      description?: string;
+    }
+  | undefined;
 
 @Component({
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterOutlet, RouterLink],
+    imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, FormAction],
     template: `
-        <h1 class="page-title">Todos</h1>
+      <h1 class="page-title">Todos</h1>
 
-        <a routerLink="/blog" class="menu-panel">Blogs</a>
-        <a class="menu-panel-active">Todos</a>
-        <a routerLink="/about" class="menu-panel">About Me</a>
+      <a routerLink="/blog" class="menu-panel">Blogs</a>
+      <a class="menu-panel-active">Todos</a>
+      <a routerLink="/about" class="menu-panel">About Me</a>
 
-        <div class="buttons">
-          <button class="open-button" (click)="openTodoCreation()" [class.hidden]="creatingNewTodo">Create new Todo</button>
-          <button *ngIf="!creatingNewTodo" (click)="switchTodoEditOptions(true)" [class.hidden]="editingTodos">Edit Todos</button>
-          <button (click)="switchTodoEditOptions(false)" [class.hidden]="!editingTodos">Done</button>
-        </div>
+      <div class="buttons">
+        <button class="open-button" (click)="openTodoCreation()" [class.hidden]="creatingNewTodo">Create new Todo</button>
+        <button *ngIf="!creatingNewTodo" (click)="switchTodoEditOptions(true)" [class.hidden]="editingTodos">Edit Todos</button>
+        <button (click)="switchTodoEditOptions(false)" [class.hidden]="!editingTodos">Done</button>
+      </div>
 
-        <div class="input-class" *ngIf="creatingNewTodo">
+      <div class="input-class">
+        <form
+          *ngIf="creatingNewTodo"
+          method="post"
+          (onSuccess)="onSuccess()"
+          (onError)="onError($any($event))"
+          (onStateChanges)="newTodoErrors.set(undefined)"
+        >
           <h2>Create a new Todo</h2>
 
           <label for="title">Todo Title</label>
-          <input type="text" id="title" name="title" [(ngModel)]="title" required/>
+          <input type="text" id="title" name="title" [(ngModel)]="title" required autocomplete="off"/>
 
           <label for="description">Todo Description</label>
-          <input type="text" id="description" name="description" [(ngModel)]="description" required/>
+          <input type="text" id="description" name="description" [(ngModel)]="description" required autocomplete="off"/>
 
           <label for="linkedBlog">Todo Description</label>
           <select id="linkedBlog" name="linkedBlog" [(ngModel)]="linkedBlog">
@@ -38,30 +53,39 @@ import { Router } from '@angular/router';
             <option *ngFor="let option of options" [value]="option.value">{{ option.label }}</option>
           </select>
 
-          <button class="submit-class" [disabled]="!isFormValid()" (click)="addTodoFromInput()">Add new Todo</button>
+          <button class="submit-class" type="submit">Add new Todo</button>
           <button class="submit-class" (click)="resetForms()">Cancel</button>
-        </div>
+        </form>
 
-        <div class="todos">
-          <div *ngFor="let todo of todos">
-            <div class="todo-element" *ngIf="!editingSingelTodo || editingSingelTodo && currentlyEditedTodo !== todo.id">
-              <span>{{ todo.title }} – {{ todo.description }}</span>
-              <div class="todo-actions">
-                <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
-                <button *ngIf="editingTodos" (click)="openEditTodo(todo)">🖊</button>
-                <button *ngIf="editingTodos" (click)="deleteTodo(todo.id)">⛔</button>
-              </div>
+        @if (newTodoErrors()?.title) {
+          <p>{{ newTodoErrors()?.title }}</p>
+        }
+        @if (newTodoErrors()?.description) {
+          <p>{{ newTodoErrors()?.description }}</p>
+        }
+      </div>
+
+      <div class="todos">
+        <div *ngFor="let todo of todos">
+          <div class="todo-element" *ngIf="!editingSingelTodo || editingSingelTodo && currentlyEditedTodo !== todo.id">
+            <span>{{ todo.title }} – {{ todo.description }}</span>
+            <div class="todo-actions">
+              <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
+              <button *ngIf="editingTodos" (click)="openEditTodo(todo)">🖊</button>
+              <button *ngIf="editingTodos" (click)="deleteTodo(todo.id)">⛔</button>
             </div>
+          </div>
 
-            <div *ngIf="editingSingelTodo && currentlyEditedTodo === todo.id">
-              <div class="input-class">
-                <h2>Edit Todo {{ todo.title }}</h2>
+          <div *ngIf="editingSingelTodo && currentlyEditedTodo === todo.id">
+            <div class="input-class">
+              <h2>Edit Todo {{ todo.title }}</h2>
 
+              <form method="post">
                 <label for="title">Todo Title</label>
-                <input type="text" id="title" name="title" [(ngModel)]="title" required/>
+                <input type="text" id="title" name="title" [(ngModel)]="title" required autocomplete="off"/>
 
                 <label for="description">Todo Description</label>
-                <input type="text" id="description" name="description" [(ngModel)]="description" required/>
+                <input type="text" id="description" name="description" [(ngModel)]="description" required autocomplete="off"/>
 
                 <label for="linkedBlog">Linked Blog Entry for this Todo</label>
                 <select id="linkedBlog" name="linkedBlog" [(ngModel)]="linkedBlog">
@@ -73,17 +97,18 @@ import { Router } from '@angular/router';
                   <label [for]="todo.id">Todo Done</label>
                   <div>
                     <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
-                    <button (click)="editTodoFinal(todo, false)" [disabled]="!isFormValid()">Save</button>
+                    <button type="submit" (click)="editTodoFinal(todo, false)" [disabled]="!isFormValid()">Save</button>
                     <button (click)="editTodoFinal(todo, true)">Cancel</button>
                     <button (click)="deleteTodo(todo.id)">⛔</button>
                   </div>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>
+      </div>
 
-        <router-outlet />
+      <router-outlet />
     `,
     styles: [`
       @import 'todo.page.css';
@@ -104,6 +129,23 @@ export default class TodoPage {
 
   posts = injectContentFiles<BlogPost>();
   options: { value: string; label: string }[] = [];
+
+  newTodo = signal(false);
+  newTodoErrors = signal<FormErrors>(undefined);
+
+  onSuccess() {
+    this.newTodo.set(true);
+
+    if (this.newTodo()) {
+      this.addTodoFromInput();
+      this.newTodoErrors.set(undefined);
+      this.newTodo.set(false);
+    }
+  }
+
+  onError(result?: FormErrors) {
+    this.newTodoErrors.set(result);
+  }
 
   constructor(private router: Router) {
     this.loadTodos();

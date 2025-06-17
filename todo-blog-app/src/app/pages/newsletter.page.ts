@@ -1,7 +1,6 @@
 import { Component, signal } from '@angular/core';
 
 import { FormAction } from '@analogjs/router';
-import { single } from 'rxjs';
 
 type FormErrors =
   | {
