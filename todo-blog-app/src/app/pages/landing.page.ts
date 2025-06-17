@@ -13,6 +13,9 @@ import { HttpClient } from '@angular/common/http';
         <a routerLink="/todo">Todos</a>
         <a routerLink="/about">About Me</a>
 
+
+        <button routerLink="/newsletter">Signup to the Newsletter</button>
+
         <router-outlet />
     `,
     styles: [`
