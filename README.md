@@ -38,8 +38,34 @@ Danach sind alle Routen auch über den Namen, den diese haben erreichbar. Das fi
 Ein Beispiel für eine statische Route ist die [landing.page.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/landing.page.ts)-Seite. Diese nimmt keine dynamischen Werte an und stellt eine simple Landing Page dar.
 Dementsprechend reicht es einfach diese Datei im [/src/app/pages](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/app/pages)-Ordner zu erstellen und über redirects oder über einen Browser zu [localhost:5173/landing](http://localhost:5173/landing) zu navigieren.
 
-### Definieren von dynamischen Routen in analogJS
+## Definieren von dynamischen Routen in analogJS
 
 Wenn man eine Seite erstellen möchte, die dynamische Parameter oder Ähnliches verwendet, können zwei Methoden angewendet werden:
 - Übergeordneten und untergeordneten Routen (Parent/Child-Routen)
 - Nicht verschachtelte Routen
+
+Ein solches Beispiel ist `parameter.[slug].page.ts` [hier](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/parameter.%5Bslug%5D.page.ts). `[slug]` repräsentiert hierbei einen belieben Wert, der als Parameter angenommen wird.
+
+```bash
+@Component({
+  selector: "dynamic-parameter",
+  standalone: true,
+  imports: [AsyncPipe],
+  template: `
+    <h1>Dynamic Parameter</h1>
+
+    {{ slug$ | async }}
+  `
+})
+export default class DynamicParameterPageComponent {
+  route = inject(ActivatedRoute);
+  slug$ = this.route.paramMap.pipe(map(params => params.get("slug")));
+}
+```
+
+Diese Seite nimmt einen beliebigen Wert an und zeigt diesen auf der Seite an, sie kann z. B. über [localhost:5173/parameter/1](http://localhost:5173/parameter/1) erreicht werden und dann wird auf der Seite `1` angezeigt.
+
+![IMG_localhost:5173/parameter/1](https://drive.google.com/uc?export=view&id=1oiUP6Sb_LvajG-rTFcJYy0RDukaDIYaD)
+
+## Elter-Kind-Routen mit dynamischen Parametern
+
