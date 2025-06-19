@@ -24,3 +24,28 @@ Run `npm run test` to run unit tests with [Vitest](https://vitest.dev).
 - Join the [Discord](https://chat.analogjs.org)
 - Follow us on [Twitter](https://twitter.com/analogjs)
 - Become a [Sponsor](https://github.com/sponsors/brandonroberts)
+
+
+# Prisma
+
+## Database setup
+
+Run
+`npm install prisma --save-dev`
+and
+`npm install @prisma/client`
+to install prisma run the following two commands:
+
+Run `npx prisma init` to initialize the prisma database.
+
+Run `npx prisma generate` to generate a database from a schema.
+
+## Run the database
+
+The prisam database in this project runs with docker and listens to the port `5433:5432`. The databse URL is: `DATABASE_URL="postgresql://postgres:secret123@localhost:5433/mydb` and can be found in the `.env`-file.
+
+Run `npx prisma db push` to create the database with the schema.
+
+## Reset the database
+
+Run `npx prisma migrate reset` to reset the database.
