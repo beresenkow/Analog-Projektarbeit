@@ -2,6 +2,8 @@
 
 This project was generated with [Analog](https://analogjs.org), the fullstack meta-framework for Angular.
 
+First move to this directory `cd todo-blog-app`.
+
 ## Setup
 
 Run `npm install` to install the application dependencies.
@@ -18,23 +20,11 @@ Run `npm run build` to build the client/server project. The client build artifac
 
 Run `npm run test` to run unit tests with [Vitest](https://vitest.dev).
 
-## Community
-
-- Visit and Star the [GitHub Repo](https://github.com/analogjs/analog)
-- Join the [Discord](https://chat.analogjs.org)
-- Follow us on [Twitter](https://twitter.com/analogjs)
-- Become a [Sponsor](https://github.com/sponsors/brandonroberts)
-
-
 # Prisma
 
 ## Database setup
 
-Run
-`npm install prisma --save-dev`
-and
-`npm install @prisma/client`
-to install prisma run the following two commands:
+Run `npm install prisma --save-dev` and `npm install @prisma/client` to install prisma.
 
 Run `npx prisma init` to initialize the prisma database.
 
