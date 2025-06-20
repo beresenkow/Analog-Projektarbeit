@@ -69,3 +69,105 @@ Diese Seite nimmt einen beliebigen Wert an und zeigt diesen auf der Seite an, si
 
 ## Elter-Kind-Routen mit dynamischen Parametern
 
+Hierfür wird eine übergeordnete Seite benötigt, hier die [blog.page.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog.page.ts):
+
+```bash
+import { Component } from "@angular/core";
+import { RouterLink, RouterOutlet } from "@angular/router";
+
+@Component({
+    standalone: true,
+    imports: [RouterOutlet, RouterLink],
+    template: `
+        <h1 class="page-title">Blog</h1>
+
+        <a class="menu-panel-active">Blogs</a>
+        <a routerLink="/todo" class="menu-panel">Todos</a>
+        <a routerLink="/about" class="menu-panel">About Me</a>
+
+        <router-outlet />
+    `,
+})
+export default class BlogPage {}
+```
+
+Diese Seite stellt das übergeordnete Elternelement dar, welches für die verschachtelte Funktion den `RouterOutlet` von `@angular/router`importiert und das `<router-outlet />`-Element im Template nutzt, um die Kinderrouten anzuzeigen, oder eine Menge von Kinderrouten, falls diese benötigt werden.
+
+Sollte zu [localhost:5173/blog](http://localhost:5173/blog) navigiert werden, wird dieser Inhalt angezeigt (hier eine simple Navigationsleiste) und das `<router-outlet />`-Element navigiert sofort zur [/blog/index.page.ts]( https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/index.page.ts)-Seite (Hier eine Liste aller Existierenden Blogeinträge), die die neue Index-Seite der Kinderrouten darstellt und diese verschachtelt auf der Elternseite neben dessen Inhalten anzeigt.
+
+```bash
+import { Component } from "@angular/core";
+import { NgFor } from "@angular/common";
+import { injectContentFiles } from "@analogjs/content";
+import { RouterLink } from "@angular/router";
+
+import { BlogPost } from "src/app/models/post";
+
+@Component({
+    standalone: true,
+    imports: [NgFor, RouterLink],
+    template:`
+        <h2>Posts</h2>
+
+        <ul>
+            <div class="blog-posts" *ngFor="let post of posts">
+                <h3 class="blog-entry-element" [routerLink]="['/blog', post.slug]">{{ post.attributes.title }}</h3>
+                <p [routerLink]="['/blog', post.slug]">{{ post.attributes.description }}</p>
+            </div>
+        </ul>
+    `,
+    styles: [`
+        @import 'blog.page.css';
+    `]
+})
+export default class IndexPage {
+    posts = injectContentFiles<BlogPost>();
+}
+```
+
+`injectContentFiles<BlogPost>()` bereitgestellt von `@analogjs/content` liefert eine Liste aller Elemente die sich im [/src/content](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/content)-Ordner befinden, die in dem Fall die Blogeinträge dieser Anwendung.
+
+![IMG_localhost:5173/blog](https://drive.google.com/uc?export=view&id=1iMhdCmAw00CMiND8HnwvEzto2e0BK1Gy)
+
+Alle untergeordneten Routen müssen sich in einem Ordner befinden, der den selben Namen hat, wie die übergeordnete Route.
+
+Sollte man auf einen der Blogeinträge klicken, wird die aktuelle untergeordnete Route mit einer dynamischen Route `[slug].page.ts` [hier](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/%5Bslug%5D.page.ts) ersetzt, die den Inhalt des angeklickten Blogeintrags anzeigt.
+
+```bash
+import { MarkdownComponent, injectContent } from "@analogjs/content";
+
+@Component({
+    standalone: true,
+    imports: [MarkdownComponent, CommonModule, AsyncPipe, FormsModule],
+    template: `
+        <div *ngIf="post$ | async as post">
+            <h2>{{ post.attributes.title }}</h2>
+            <h3>{{ post.attributes.description }}</h3>
+
+            <div *ngIf="todos.length > 0">
+                <div class="todo-widget">
+                    <h3 class="todo-widget-element">Todos:</h3>
+                    <p class="todo-widget-element" *ngFor="let todo of todos">
+                        {{ todo.title }} - {{ todo.description }}
+                        <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
+                    </p>
+                </div>
+            </div>
+
+            <analog-markdown [content]="post.content" />
+        </div>
+    `,
+    styles: [`
+        @import 'blog.page.css';
+    `]
+})
+export default class BlogPostPage {
+  post$ = injectContent<BlogPost>();
+}
+```
+
+`injectContent<BlogPost>()` bereitgestellt von `@analogjs/content`, extrahiert den Inhalt einer Markdown-Datei in ein `BlogPost`-Interface und zeigt den Inhalt durch `<analog-markdown [content]="post.content" />` an.
+
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=15krF4z3WMf0CRRyjeoCS9wZVGziQnDet)
+
+## Routen von Metadaten
