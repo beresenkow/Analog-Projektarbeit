@@ -297,7 +297,7 @@ export default class BlogPostPage {
 }
 ```
 
-![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=15krF4z3WMf0CRRyjeoCS9wZVGziQnDet)
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1BnQzzawInXUcIVbR93VkO6-G6N36JPnP)
 
 # Routen von Metadaten
 
