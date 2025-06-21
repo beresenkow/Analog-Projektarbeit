@@ -27,14 +27,14 @@ export class TodoService {
   }
 
   create(todo: Omit<Todo, 'id'>): Observable<Todo> {
-    return this.http.post<Todo>(`${this.apiUrl}/post`, todo);
+    return this.http.post<Todo>(`${this.apiUrl}`, todo);
   }
 
   update(todo: Todo): Observable<Todo> {
-    return this.http.put<Todo>(`${this.apiUrl}/update`, todo);
+    return this.http.put<Todo>(`${this.apiUrl}`, todo);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/delete/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
