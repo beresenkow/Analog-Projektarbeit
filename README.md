@@ -1,3 +1,4 @@
+
 # Analog-Projektarbeit
 
 ## Analog
@@ -16,11 +17,71 @@ Weitere Informationen in der [Analog Doku](https://analogjs.org/docs).
 
 Für die genaueren Details, wie das Projekt mit analogJS und Prisma aufgesetzt werden soll, den Hinweisen [hier](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/README.md) folgen.
 
-# AngularJS angewandt im Projekt
+## Projekt Struktur
 
-## Routing in AnalogJS
+```bash
+src/
+├── app/
+│   ├── models/
+│   │   └── post.ts
+│   ├── pages/
+│   │   ├── blog/
+│   │   │   ├── [slug].page.ts]
+│   │   │   ├── blog.page.css
+│   │   │   └── index.page.ts
+│   │   ├── [...page-not-found].page.ts
+│   │   ├── about.md
+│   │   ├── blog.page.ts
+│   │   ├── index.page.ts
+│   │   ├── landing.page.css
+│   │   ├── landing.page.ts
+│   │   ├── newsletter.page.ts
+│   │   ├── newsletter.server.ts
+│   │   ├── parameter.[slug].page.ts
+│   │   ├── todo.page.css
+│   │   ├── todo.page.ts
+│   │   └── todo.server.ts
+│   ├── app.component.spec.ts
+│   ├── app.component.ts
+│   ├── app.config.server.ts
+│   ├── app.config.ts
+│   └── todo.services.ts
+├── content/
+│   ├── die-bedeutung-von-lebenslangem-lernen.md
+│   ├── die-bedeutung-von-mentoring.md
+│   ├── die-bedeutung-von-netzwerken.md
+│   ├── die-bedeutung-von-selbstreflexion.md
+│   ├── die-kunst-der-work-life-balance.md
+│   ├── meine-erfahrungen-mit-projekt.md
+│   ├── meine-leidenschaft-fuer-hobby.md
+│   ├── meine-reise-durch-die-welt-des-berufsfeld.md
+│   ├── meine-reise-durch-reiseziel.md
+│   └── meine-ziele-fuer-die-zukunft.md
+└── server/
+    └── routes/
+        └── api/
+            ├── todos/ 
+            │   ├── (delete)/
+            │   │   └── [id].delete.ts
+            │   ├── (get)/
+            │   │   ├── [id].get.ts
+            │   │   └── index.get.ts
+            │   ├── (post)/
+            │   │   └── index.post.ts
+            │   ├── (put)/
+            │   │   └── index.put.ts
+            │   └── default/
+            │       └── index.get.ts
+            ├── main.server.ts
+            ├── main.ts
+            ├── styles.css
+            ├── test-setup.ts
+            └── vite-env.d.ts
+```
 
-### File Base Routing in AnalogJS
+# Routing in AnalogJS
+
+## File Base Routing in AnalogJS
 
 Für das file-based Routing muss die `provideFileRouter()`-Komponente in dem `providers`-Array in [`app.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/app.config.ts) hinzugefügt werden, wenn die Anwendung gestartet wird.
 
@@ -52,18 +113,65 @@ Danach sind alle Routen auch über den Namen, den diese haben erreichbar. Das fi
 
 [`index.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/index.page.ts) stellt dabei die Index Route dar, die unter [localhost:5173/](http://localhost:5173/) erreichbar ist.
 
-## Routen definieren in analogJS
+# Routen definieren in analogJS
 
-### Definieren von statischen Routen in analogJS
+## Definieren von Index-Routen
+
+Index-Routen werden über einfache Klammern im Datei-, bzw. Orndernamen definiert.
+
+So definiert z. B. `src/app/pages/(home).page.ts` eine `/`-Route.
+
+Ein Beispiel für solche Index-Routen in der Anwendung, sind sämtliche Routen im [`src/server/routes/api/todos`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api/todos)-Verzeichnis, die HTTP-Methoden darstellen. Dies verinfacht die Aufrufe dieser Methoden, bei HTTP-Anfragen.
+
+## Definieren von statischen Routen in analogJS
 
 Ein Beispiel für eine statische Route ist die [`landing.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/landing.page.ts)-Seite. Diese nimmt keine dynamischen Werte an und stellt eine simple Landing Page dar.
-Dementsprechend reicht es einfach diese Datei im [`/src/app/pages`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/app/pages)-Ordner zu erstellen und über redirects oder über einen Browser zu [localhost:5173/landing](http://localhost:5173/landing) zu navigieren.
+Dementsprechend reicht es einfach diese Datei im [`/src/app/pages`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/app/pages)-Ordner zu erstellen und über [localhost:5173/landing](http://localhost:5173/landing) zu erreichen.
+
+```bash
+// src/app/pages/landing.page.ts
+import { Component, inject } from "@angular/core";
+import { RouterLink, RouterOutlet } from "@angular/router";
+import { TodoService, Todo } from "../todo.services";
+import { HttpClient } from '@angular/common/http';
+
+@Component({
+    standalone: true,
+    imports: [RouterOutlet, RouterLink],
+    template: `
+        <h1>Landing Page</h1>
+
+        <a routerLink="/blog">Blogs</a>
+        <a routerLink="/todo">Todos</a>
+        <a routerLink="/about">About Me</a>
+
+        <button routerLink="/newsletter">Signup to the Newsletter</button>
+
+        <router-outlet />
+    `,
+    styles: [`
+        @import 'landing.page.css';
+    `]
+})
+export default class LandingPage {
+    //...
+}
+```
+
+Bei statischen Routen reicht es einfach den Dateiname als Pfad der Route zu verwenden.
+
+## Hinweise zu verschachtelten Routen
+
+Es lassen sich auch verschachtelte statische, sowie dynamische Routen auf zwei Arten definieren: 
+- Über Router-Dateien in Ordnern, z. B. `src/app/pages/about/team.page.ts` 
+- Ooder über Punktnotation im Dateinamen `src/app/pages/about.team.page.ts` 
+Beide Varianten führen zum selben Ziel, einer `/about/team`-Route.
+
+Ein Beispiel für solche verschachtelte Routen in der Anwendung, die mit der Punktnotation arbeiten, sind sämtliche Routen im [`src/server/routes/api/todos`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api/todos)-Verzeichnis. Wobei anzumerken ist, dass es sich um eine Kombination aus beiden Varianten handelt und es sich bei diesen Routen nicht um statische sondern dynmaiche Routen handelt.
 
 ## Definieren von dynamischen Routen in analogJS
 
-Wenn man eine Seite erstellen möchte, die dynamische Parameter oder Ähnliches verwendet, können zwei Methoden angewendet werden:
-- Übergeordneten und untergeordneten Routen (Parent/Child-Routen)
-- Nicht verschachtelte Routen
+Wenn man eine Seite erstellen möchte, die dynamische Parameter oder Ähnliches verwendet, kann man, wie bei den statischen auf flache Routen zurückgreifen, oder ebenfals auf verschachtelte Routen zurückgreifen.
 
 Ein solches Beispiel ist [`parameter.[slug].page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/parameter.%5Bslug%5D.page.ts). `[slug]` repräsentiert hierbei einen belieben Wert, der als Parameter angenommen wird.
 
@@ -89,7 +197,7 @@ Diese Seite nimmt einen beliebigen Wert an und zeigt diesen auf der Seite an, si
 
 ![IMG_localhost:5173/parameter/1](https://drive.google.com/uc?export=view&id=1oiUP6Sb_LvajG-rTFcJYy0RDukaDIYaD)
 
-## Elter-Kind-Routen mit dynamischen Parametern
+# Übergeordnete und Untergeordnete Routen mit dynamischen Parametern (Eltern-Kind-Prinzip)
 
 Hierfür wird eine übergeordnete Seite benötigt, hier die [`blog.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog.page.ts):
 
@@ -114,9 +222,11 @@ import { RouterLink, RouterOutlet } from "@angular/router";
 export default class BlogPage {}
 ```
 
-Diese Seite stellt das übergeordnete Elternelement dar, welches für die verschachtelte Funktion den `RouterOutlet` von `@angular/router`importiert und das `<router-outlet />`-Element im Template nutzt, um die Kinderrouten anzuzeigen, oder eine Menge von Kinderrouten, falls diese benötigt werden.
+Diese Seite stellt das übergeordnete Elternelement dar, welches für die verschachtelte Funktion den `RouterOutlet` von `@angular/router`importiert und das `<router-outlet />`-Element im Template nutzt, um die Kinderrouten anzuzeigen, oder eine Menge von Kinderrouten.
 
-Sollte zu [localhost:5173/blog](http://localhost:5173/blog) navigiert werden, wird dieser Inhalt angezeigt (hier eine simple Navigationsleiste) und das `<router-outlet />`-Element navigiert sofort zur [`/blog/index.page.ts`]( https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/index.page.ts)-Seite (Hier eine Liste aller Existierenden Blogeinträge), die die neue Index-Seite der Kinderrouten darstellt und diese verschachtelt auf der Elternseite neben dessen Inhalten anzeigt.
+Alle untergeordneten Routen müssen sich in einem Ordner befinden, der den selben Namen hat, wie die übergeordnete Route.
+
+Sollte zu [localhost:5173/blog](http://localhost:5173/blog) navigiert werden, wird dieser Inhalt angezeigt (hier eine simple Navigationsleiste) und das `<router-outlet />`-Element navigiert sofort zur [`/blog/index.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/index.page.ts)-Seite (Hier eine Liste aller Existierenden Blogeinträge), die die neue Index-Seite der Kinderrouten darstellt und diese verschachtelt auf der Elternseite neben dessen Inhalten anzeigt.
 
 ```bash
 // src/app/pages/blog/index.page.t
@@ -149,9 +259,7 @@ export default class IndexPage {
 }
 ```
 
-![IMG_localhost:5173/blog](https://drive.google.com/uc?export=view&id=1iMhdCmAw00CMiND8HnwvEzto2e0BK1Gy)
-
-Alle untergeordneten Routen müssen sich in einem Ordner befinden, der den selben Namen hat, wie die übergeordnete Route.
+![IMG_localhost:5173/blog](https://drive.google.com/uc?export=view&id=1VjMThPP15z5EzVzyFJcRHa_0dwUIe_VR)
 
 Sollte man auf einen der Blogeinträge klicken, wird die aktuelle untergeordnete Route mit einer dynamischen Route [`[slug].page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/%5Bslug%5D.page.ts) ersetzt, die den Inhalt des angeklickten Blogeintrags anzeigt.
 
@@ -191,7 +299,7 @@ export default class BlogPostPage {
 
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=15krF4z3WMf0CRRyjeoCS9wZVGziQnDet)
 
-## Routen von Metadaten
+# Routen von Metadaten
 
 Zusätzliche Metadaten können zu jeder Route mit dem `RouteMeta`-Typ definiert werden, wie Seitentitel, Guards, Resolver, Provider, etc.
 
@@ -235,9 +343,9 @@ export const routeMeta: RouteMeta = {
 
 Dieses Beispiel würde den Browser dazu auffordern alle 30 Sekunden einen Refresh durchzuführen.
 
-## Markdown als Routen
+# Markdown als Routen
 
-### Content Routen definieren
+## Content Routen definieren
 
 AnalogJS unterstützt die Verwendung von Content Routen, in denen Markdown Inhalte als Routen definiert werden können.
 
@@ -266,7 +374,7 @@ Dies ermöglicht es, dass [`src/app/pages/about.md`](https://github.com/beresenk
 
 ![IMG_localhost:5173/about](https://drive.google.com/uc?export=view&id=188ezG6VevOVcRFMehJKgUCVvT0BQSwhA)
 
-### Content Dateien definieren
+## Content Dateien definieren
 
 Für mehr Flexibilität Befinden sich alle Blogeinträge dieser Anwendung als Content Daten im [`src/content`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/content)-Ordner hinterlegen.
 
@@ -380,3 +488,5 @@ export default class BlogPostPage {
 ```
 
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=15krF4z3WMf0CRRyjeoCS9wZVGziQnDet)
+
+# API Routen
