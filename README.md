@@ -199,7 +199,7 @@ Diese Seite nimmt einen beliebigen Wert an und zeigt diesen auf der Seite an, si
 
 # Übergeordnete und Untergeordnete Routen mit dynamischen Parametern (Eltern-Kind-Prinzip)
 
-Hierfür wird eine übergeordnete Seite benötigt, hier die [`blog.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog.page.ts):
+Auch Layout Routes genannt. Hierfür wird eine übergeordnete Seite benötigt, hier die [`blog.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog.page.ts):
 
 ```bash
 // src/app/pages/blog.page.ts
@@ -342,6 +342,49 @@ export const routeMeta: RouteMeta = {
 ```
 
 Dieses Beispiel würde den Browser dazu auffordern alle 30 Sekunden einen Refresh durchzuführen.
+
+# Catch-All-Routen
+
+Catch-All-Routen werden definiert, indem der Dateiname als Routenpfad verwendet wird, der mit drei Punkten in eckigen Klammern vorangestellt wird.
+
+Die Beispielroute unten in [`[...page-not-found].page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/%5B...page-not-found%5D.page.ts) definiert eine Platzhalter-Route (wildcard `**`-Route). Diese Route wird normalerweise für 404-Seiten verwendet.
+
+Die eckigen Klammern zeigen an, dass die Route dynamisch ist. Der Ausdruck `[...page-not-found]` wird als Parameter behandelt, und die Auslassungspunkte `(...)` zeigen an, dass die Route jeden Pfad abdecken soll, der nicht von anderen Routen erfasst wurde. Durch das Erstellen dieser oder einer ähnlichen Catch-All-Route kann sichergestellt werden, dass deine Anwendung undefinierte Routen elegant behandelt, was zu einer besseren Benutzererfahrung führt.
+
+```bash
+// src/app/pages/[...page-not-found].page.ts
+import { RouteMeta } from "@analogjs/router";
+import { injectResponse } from "@analogjs/router/tokens";
+import { Component } from "@angular/core";
+import { RouterLink } from "@angular/router";
+
+export const routeMeta: RouteMeta = {
+  title: 'Page Not Found',
+  canActivate: [
+    () => {
+      const response = injectResponse();
+      if (import.meta.env.SSR && response) {
+        response.statusCode = 404;
+        response.end();
+      }
+      return true;
+    }
+  ]
+};
+
+@Component({
+    standalone: true,
+    imports: [RouterLink],
+    template: `
+        <h1>Page not found</h1>
+
+        <a routerLink="/">Home</a>
+    `,
+})
+export default class PageNotFoundPage {}
+```
+
+Dies ist ein simples Beispiel für eine `404-Seite`, die in der `RouteMeta` einen `404`-Statuscode an den Server sendet. 
 
 # Markdown als Routen
 
@@ -490,3 +533,349 @@ export default class BlogPostPage {
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=15krF4z3WMf0CRRyjeoCS9wZVGziQnDet)
 
 # API Routen
+
+AnalogJS unterstützt auch API-Routen, die verwendet werden können, um Daten/Inhalte für die Anwendung bereitzustellen.
+
+Diese API-Routen werden in [`src/server/routes/api`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api) definiert und basieren auch auf dem Prinzip des file-based Routing und sind unter dem Präfix `/api` verfügbar.
+
+Hier lassen sich viele APIs implementieren, wie XML-Inhalte, Catch-All-Routen, Fehlerbehandlung, Cookies oder Datenbanken, wenn nötig kann auch nextJS integriert werden. Diese werden alle auf dem Server laufen, ohne einen zusätzlichen Serverprozess starten zu müssen. Diese Routen sind unter dem Präfix `/api` verfügbar. Weitere Informationen und Beispiele gibt es in den [AnalogJS Dokumentationen](https://analogjs.org/docs/features/api/overview).
+
+Dies Anwendung beschränkt sich auf eine Implementation einer [PrismaDB](https://www.prisma.io/) zur Handbabung von Todos auf dem Server.
+
+## Datenbanken und API-Routen
+
+Für die Handbabung von den Todos in der Anwendung wird ein simples Schema mit PrismaDB implementiert unter [`schema.prisma`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/prisma/schema.prisma)
+
+```bash
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Todo {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String
+  linkedBlog  String
+  done        Boolean @default(false)
+
+  @@index([linkedBlog])
+}
+```
+
+Alle Datenbankzugriffe erfolgen unter den API-Routen in [`src/server/routes/api/todos`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api/todos) und alle diese Routen implementieren entsprechende HTTP-Methoden.
+
+```bash
+src/
+└── server/
+    └── routes/
+        └── api/
+            └── todos/ 
+                ├── (delete)/
+                │   └── [id].delete.ts
+                ├── (get)/
+                │   ├── [id].get.ts
+                │   └── index.get.ts
+                ├── (post)/
+                │   └── index.post.ts
+                └── (put)/
+                    └── index.put.ts
+```
+
+Zum Beispiel [`todos/(get)/index.get.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/server/routes/api/todos/(get)/index.get.ts):
+
+```bash
+// src/server/routes/api/todos/(get)/index.get.ts
+import { defineEventHandler } from 'h3';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export default defineEventHandler(async (event) => {
+  const todos = await prisma.todo.findMany();
+  return todos;
+});
+```
+
+Auf alle diese Routen wird in einem Service [`todo.services.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/todo.services.ts) der Anwendung zur Verfügung gestellt.
+
+```bash
+// src/app/todo.services.ts
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
+import { Observable } from 'rxjs';
+
+export interface Todo {
+  id: number;
+  title: string;
+  description: string;
+  linkedBlog: string;
+  done: boolean;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class TodoService {
+  private apiUrl = '/api/todos';
+  private http = inject(HttpClient);
+
+  getAll(): Observable<Todo[]> {
+    return this.http.get<Todo[]>(this.apiUrl);
+  }
+
+  getById(id: number): Observable<Todo> {
+    return this.http.get<Todo>(`${this.apiUrl}/${id}`);
+  }
+
+  create(todo: Omit<Todo, 'id'>): Observable<Todo> {
+    return this.http.post<Todo>(`${this.apiUrl}`, todo);
+  }
+
+  update(todo: Todo): Observable<Todo> {
+    return this.http.put<Todo>(`${this.apiUrl}`, todo);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+}
+```
+
+[`todo.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/todo.page.ts)
+
+```bash
+// src/app/pages/todo.page.ts
+import { CommonModule } from '@angular/common';
+import { Component, inject, signal } from "@angular/core";
+import { RouterLink, RouterOutlet } from "@angular/router";
+import { TodoService, Todo } from "../todo.services";
+import { FormsModule } from '@angular/forms';
+import { injectContentFiles } from '@analogjs/content';
+import { BlogPost } from '../models/post';
+import { Router } from '@angular/router';
+import { FormAction } from '@analogjs/router';
+
+type FormErrors =
+  | {
+      title?: string;
+      description?: string;
+    }
+  | undefined;
+
+@Component({
+    standalone: true,
+    imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, FormAction],
+    template: `
+      <h1 class="page-title">Todos</h1>
+
+      <a routerLink="/blog" class="menu-panel">Blogs</a>
+      <a class="menu-panel-active">Todos</a>
+      <a routerLink="/about" class="menu-panel">About Me</a>
+
+      <div class="buttons">
+        <button class="open-button" (click)="openTodoCreation()" [class.hidden]="creatingNewTodo">Create new Todo</button>
+        <button *ngIf="!creatingNewTodo" (click)="switchTodoEditOptions(true)" [class.hidden]="editingTodos">Edit Todos</button>
+        <button (click)="switchTodoEditOptions(false)" [class.hidden]="!editingTodos">Done</button>
+      </div>
+
+      <div class="input-class">
+        <form
+          *ngIf="creatingNewTodo"
+          method="post"
+          (onSuccess)="onSuccess()"
+          (onError)="onError($any($event))"
+          (onStateChanges)="newTodoErrors.set(undefined)"
+        >
+          <h2>Create a new Todo</h2>
+
+          <label for="title">Todo Title</label>
+          <input type="text" id="title" name="title" [(ngModel)]="title" required autocomplete="off"/>
+
+          <label for="description">Todo Description</label>
+          <input type="text" id="description" name="description" [(ngModel)]="description" required autocomplete="off"/>
+
+          <label for="linkedBlog">Todo Description</label>
+          <select id="linkedBlog" name="linkedBlog" [(ngModel)]="linkedBlog">
+            <option value="" disabled selected>Select a Blog entry for this Todo</option>
+            <option *ngFor="let option of options" [value]="option.value">{{ option.label }}</option>
+          </select>
+
+          <button class="submit-class" type="submit">Add new Todo</button>
+          <button class="submit-class" (click)="resetForms()">Cancel</button>
+        </form>
+
+        @if (newTodoErrors()?.title) {
+          <p>{{ newTodoErrors()?.title }}</p>
+        }
+        @if (newTodoErrors()?.description) {
+          <p>{{ newTodoErrors()?.description }}</p>
+        }
+      </div>
+
+      <div class="todos">
+        <div *ngFor="let todo of todos">
+          <div class="todo-element" *ngIf="!editingSingelTodo || editingSingelTodo && currentlyEditedTodo !== todo.id">
+            <span>{{ todo.title }} – {{ todo.description }}</span>
+            <div class="todo-actions">
+              <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
+              <button *ngIf="editingTodos" (click)="openEditTodo(todo)">🖊</button>
+              <button *ngIf="editingTodos" (click)="deleteTodo(todo.id)">⛔</button>
+            </div>
+          </div>
+
+          <div *ngIf="editingSingelTodo && currentlyEditedTodo === todo.id">
+            <div class="input-class">
+              <h2>Edit Todo {{ todo.title }}</h2>
+
+              <form method="post">
+                <label for="title">Todo Title</label>
+                <input type="text" id="title" name="title" [(ngModel)]="title" required autocomplete="off"/>
+
+                <label for="description">Todo Description</label>
+                <input type="text" id="description" name="description" [(ngModel)]="description" required autocomplete="off"/>
+
+                <label for="linkedBlog">Linked Blog Entry for this Todo</label>
+                <select id="linkedBlog" name="linkedBlog" [(ngModel)]="linkedBlog">
+                  <option value="" disabled selected>Select a Blog entry for this Todo</option>
+                  <option *ngFor="let option of options" [value]="option.value">{{ option.label }}</option>
+                </select>
+
+                <div class="edit-actions">
+                  <label [for]="todo.id">Todo Done</label>
+                  <div>
+                    <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
+                    <button type="submit" (click)="editTodoFinal(todo, false)" [disabled]="!isFormValid()">Save</button>
+                    <button (click)="editTodoFinal(todo, true)">Cancel</button>
+                    <button (click)="deleteTodo(todo.id)">⛔</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <router-outlet />
+    `,
+    styles: [`
+      @import 'todo.page.css';
+    `],
+})
+export default class TodoPage {
+  private todoService = inject(TodoService);
+  todos: Todo[] = [];
+
+  creatingNewTodo: boolean = false;
+  editingTodos: boolean = false;
+  editingSingelTodo: boolean = false;
+  currentlyEditedTodo: number = 0;
+
+  title: string = '';
+  description: string = '';
+  linkedBlog: string = '';
+
+  posts = injectContentFiles<BlogPost>();
+  options: { value: string; label: string }[] = [];
+
+  constructor(private router: Router) {
+    this.loadTodos();
+    this.loadBlogPosts();
+  }
+  //...
+  editTodoFinal(todo: Todo, cancel: boolean) {
+    this.editingSingelTodo = false;
+    console.log("ji");
+    if (cancel) {
+      this.resetForms();
+      return;
+    }
+
+    const updatedTodo = {
+      id: todo.id,
+      title: this.title,
+      description: this.description,
+      linkedBlog: this.linkedBlog,
+      done: todo.done
+    }
+
+    this.updateTodo(updatedTodo);
+    this.resetForms();
+  }
+
+  addTodoFromInput() {
+    const newTodo = {
+      title: this.title,
+      description: this.description,
+      linkedBlog: this.linkedBlog,
+      done: false,
+    };
+
+    this.todoService.create(newTodo).subscribe({
+      next: (createdTodo) => {
+        this.todos.push(createdTodo);
+      },
+      error: (err) => console.error('Could not create new todo:', err),
+    });
+
+    this.resetForms();
+  }
+
+  updateTodo(todo: Todo) {
+    const todoToUpdate = {
+      id: todo.id,
+      title: todo.title,
+      description: todo.description,
+      linkedBlog: todo.linkedBlog,
+      done: todo.done
+    }
+
+    this.todoService.update(todoToUpdate).subscribe({
+      next: (updatedTodo) => {
+        console.log('Todo updated successfully:', updatedTodo);
+        const index = this.todos.findIndex(t => t.id === updatedTodo.id);
+        if (index !== -1) {
+          this.todos[index] = updatedTodo;
+        }
+      },
+      error: (err) => {
+        console.error('Error updating Todo:', err);
+        const originalTodo = this.todos.find(t => t.id === todo.id);
+        if (originalTodo) {
+          todo.done = originalTodo.done;
+        }
+      }
+    });
+  }
+
+  deleteTodo(id: number) {
+    this.todoService.delete(id).subscribe({
+      next: () => {
+        console.log('Todo successfully deleted');
+        this.todos = this.todos.filter(todo => todo.id !== id);
+      },
+      error: (err) => {
+        console.error('Failed to delete todo', err);
+        let errorMessage = 'Failed to delete todo. Please try again.';
+
+        if (err.status === 404) {
+          errorMessage = 'Todo not found.';
+        } else if (err.status === 400) {
+          errorMessage = 'Invalid todo ID.';
+        }
+
+        alert(errorMessage);
+      }
+    });
+  }
+  //...
+}
+```
+
+![IMG_localhost:5173/todo](https://drive.google.com/uc?export=view&id=1UGTztLaLUTK2ktdahoVW8gVn0afcxFSl)
