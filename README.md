@@ -602,7 +602,7 @@ export default defineEventHandler(async (event) => {
 });
 ```
 
-Auf alle diese Routen wird in einem Service [`todo.services.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/todo.services.ts) der Anwendung zur Verfügung gestellt.
+Auf alle diese Routen wird in einem Service [`todo.services.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/todo.services.ts) zugegriffen und der Anwendung zur Verfügung gestellt.
 
 ```bash
 // src/app/todo.services.ts
@@ -648,7 +648,7 @@ export class TodoService {
 }
 ```
 
-[`todo.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/todo.page.ts)
+Und die Seite [`todo.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/todo.page.ts) nutzt diese Services in der Anwendung zum Handhaben von Todos. Hier können die einzelnen Todos angezeigt werden, bearbeitet und gelöscht werden, neue Todos können hier erstellt werden und Todos können als abgeschlossen markiert werden.
 
 ```bash
 // src/app/pages/todo.page.ts
@@ -879,3 +879,126 @@ export default class TodoPage {
 ```
 
 ![IMG_localhost:5173/todo](https://drive.google.com/uc?export=view&id=1UGTztLaLUTK2ktdahoVW8gVn0afcxFSl)
+
+Auch in den einzelnen Blogeinträgen in [[slug].page.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/%5Bslug%5D.page.ts), wird auf diese Todos zugegriffen, hier werden jedoch nur die Todos angezeigt, die auch eine Verknüpfung zu diesm Blogeintrag haben.
+
+```bash
+// src/app/pages/blog/[slug].page.ts
+import { TodoService, Todo } from './../../todo.services';
+import { MarkdownComponent, injectContent } from "@analogjs/content";
+import { AsyncPipe, CommonModule } from "@angular/common";
+import { Component, inject } from "@angular/core";
+import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
+import { BlogPost } from 'src/app/models/post';
+
+@Component({
+    standalone: true,
+    imports: [MarkdownComponent, CommonModule, AsyncPipe, FormsModule],
+    template: `
+        <div *ngIf="post$ | async as post">
+            <h2>{{ post.attributes.title }}</h2>
+            <h3>{{ post.attributes.description }}</h3>
+
+            <div *ngIf="todos.length > 0">
+                <div class="todo-widget">
+                    <h3 class="todo-widget-element">Todos:</h3>
+                    <p class="todo-widget-element" *ngFor="let todo of todos">
+                        {{ todo.title }} - {{ todo.description }}
+                        <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
+                    </p>
+                </div>
+            </div>
+
+            <analog-markdown [content]="post.content" />
+        </div>
+    `,
+    styles: [`
+        @import 'blog.page.css';
+    `]
+})
+export default class BlogPostPage {
+  post$ = injectContent<BlogPost>();
+  private todoService = inject(TodoService);
+  todos: Todo[] = [];
+
+  constructor() {
+    this.post$.pipe(
+      finalize(() => console.log('Observable finalized or an error has occured.'))
+    ).subscribe(post => {
+      this.loadTodos(post.attributes.slug);
+    });
+  }
+
+  updateTodo(todo: Todo) {
+    const todoToUpdate = {
+      id: todo.id,
+      title: todo.title,
+      description: todo.description,
+      linkedBlog: todo.linkedBlog,
+      done: todo.done
+    }
+
+    this.todoService.update(todoToUpdate).subscribe({
+      next: (updatedTodo) => {
+        console.log('Todo updated successfully:', updatedTodo);
+        const index = this.todos.findIndex(t => t.id === updatedTodo.id);
+        if (index !== -1) {
+          this.todos[index] = updatedTodo;
+        }
+      },
+      error: (err) => {
+        console.error('Error updating Todo:', err);
+        const originalTodo = this.todos.find(t => t.id === todo.id);
+        if (originalTodo) {
+          todo.done = originalTodo.done;
+        }
+      }
+    });
+  }
+
+  loadTodos(blogTitle: string) {
+    this.todoService.getAll().subscribe({
+      next: (todos) => {
+        this.todos = todos.filter(todo => todo.linkedBlog === blogTitle);
+
+        console.log('Loaded todos:', this.todos);
+      },
+      error: (err) => {
+        console.error('Could not load todos:', err);
+        this.todos = [];
+      }
+    });
+  }
+}
+```
+
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=15krF4z3WMf0CRRyjeoCS9wZVGziQnDet)
+
+Und alle diese Daten sind unter der `/api`-Schnittstelle zu finden. So befinden sich die Daten der Datenbank zu dieser Anwendung unter [localhost:5173/api/todos](http://localhost:5173/api/todos), bzw. können diese dort betrachtet werden. Hier ein Ausschnitt:
+
+```bash
+[
+  {
+    "id": 2,
+    "title": "Mentoring-Programm starten",
+    "description": "Ein Mentoring-Programm ins Leben rufen, um junge Fachkräfte in der [Berufsfeld]-Branche zu unterstützen.",
+    "linkedBlog": "die-bedeutung-von-mentoring",
+    "done": false
+  },
+  {
+    "id": 3,
+    "title": "Neue Lernressourcen recherchieren",
+    "description": "Online nach neuen Büchern, Kursen und Artikeln suchen, die beim lebenslangen Lernen helfen können.",
+    "linkedBlog": "die-bedeutung-von-lebenslangem-lernen",
+    "done": false
+  },
+  {
+    "id": 9,
+    "title": "Neue Fähigkeiten erlernen",
+    "description": "Einen Online-Kurs belegen, um neue Fähigkeiten in einem interessanten Bereich zu erlernen.",
+    "linkedBlog": "",
+    "done": false
+  },
+]
+```
