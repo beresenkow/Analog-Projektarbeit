@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 
 import { FormAction } from '@analogjs/router';
+import { RouterLink } from '@angular/router';
 
 type FormErrors =
   | {
@@ -11,7 +12,7 @@ type FormErrors =
 @Component({
   selector: 'app-newsletter-page',
   standalone: true,
-  imports: [FormAction],
+  imports: [FormAction, RouterLink],
   template: `
     <h3>Newsletter Signup</h3>
 
@@ -28,6 +29,8 @@ type FormErrors =
 
         <button class="button" type="submit">Submit</button>
       </form>
+
+      <a routerLink="/">Home</a>
 
       @if (errors()?.email) {
         <p>{{ errors()?.email }}</p>

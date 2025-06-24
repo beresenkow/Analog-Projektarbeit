@@ -1,8 +1,7 @@
 /// <reference types="vitest" />
 
 import { defineConfig } from 'vite';
-import analog from '@analogjs/platform';
-import { routes } from '@analogjs/router';
+import analog, { type PrerenderContentFile } from '@analogjs/platform';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -16,12 +15,20 @@ export default defineConfig(({ mode }) => ({
     prerender: {
       routes: [
         '/',
-        '/blog',
-        '/blog/die-bedeutung-von-lebenslangem-lernen',
+        '/landing',
+        '/newsletter',
         '/todo',
-        '/about'
-      ]
-    }
+        '/about',
+        '/blog',
+        {
+          contentDir: 'src/content/blog',
+          transform: (file: PrerenderContentFile) => {
+            const name = file.name;
+            return `/blog/${name}`;
+          },
+        },
+      ],
+    },
   })],
   test: {
     globals: true,
