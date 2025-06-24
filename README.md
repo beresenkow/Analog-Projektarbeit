@@ -602,7 +602,7 @@ export default defineEventHandler(async (event) => {
 });
 ```
 
-Auf alle diese Routen wird in einem Service [`todo.services.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/todo.services.ts) der Anwendung zur Verfügung gestellt.
+Auf alle diese Routen wird in einem Service [`todo.services.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/todo.services.ts) zugegriffen und der Anwendung zur Verfügung gestellt.
 
 ```bash
 // src/app/todo.services.ts
@@ -648,7 +648,7 @@ export class TodoService {
 }
 ```
 
-[`todo.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/todo.page.ts)
+Und die Seite [`todo.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/todo.page.ts) nutzt diese Services in der Anwendung zum Handhaben von Todos. Hier können die einzelnen Todos angezeigt werden, bearbeitet und gelöscht werden, neue Todos können hier erstellt werden und Todos können als abgeschlossen markiert werden.
 
 ```bash
 // src/app/pages/todo.page.ts
@@ -879,3 +879,296 @@ export default class TodoPage {
 ```
 
 ![IMG_localhost:5173/todo](https://drive.google.com/uc?export=view&id=1UGTztLaLUTK2ktdahoVW8gVn0afcxFSl)
+
+Auch in den einzelnen Blogeinträgen in [[slug].page.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/%5Bslug%5D.page.ts), wird auf diese Todos zugegriffen, hier werden jedoch nur die Todos angezeigt, die auch eine Verknüpfung zu diesm Blogeintrag haben.
+
+```bash
+// src/app/pages/blog/[slug].page.ts
+import { TodoService, Todo } from './../../todo.services';
+import { MarkdownComponent, injectContent } from "@analogjs/content";
+import { AsyncPipe, CommonModule } from "@angular/common";
+import { Component, inject } from "@angular/core";
+import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
+import { BlogPost } from 'src/app/models/post';
+
+@Component({
+    standalone: true,
+    imports: [MarkdownComponent, CommonModule, AsyncPipe, FormsModule],
+    template: `
+        <div *ngIf="post$ | async as post">
+            <h2>{{ post.attributes.title }}</h2>
+            <h3>{{ post.attributes.description }}</h3>
+
+            <div *ngIf="todos.length > 0">
+                <div class="todo-widget">
+                    <h3 class="todo-widget-element">Todos:</h3>
+                    <p class="todo-widget-element" *ngFor="let todo of todos">
+                        {{ todo.title }} - {{ todo.description }}
+                        <input type="checkbox" [id]="todo.id" [name]="'done-' + todo.title" [(ngModel)]="todo.done" (change)="updateTodo(todo)"/>
+                    </p>
+                </div>
+            </div>
+
+            <analog-markdown [content]="post.content" />
+        </div>
+    `,
+    styles: [`
+        @import 'blog.page.css';
+    `]
+})
+export default class BlogPostPage {
+  post$ = injectContent<BlogPost>();
+  private todoService = inject(TodoService);
+  todos: Todo[] = [];
+
+  constructor() {
+    this.post$.pipe(
+      finalize(() => console.log('Observable finalized or an error has occured.'))
+    ).subscribe(post => {
+      this.loadTodos(post.attributes.slug);
+    });
+  }
+
+  updateTodo(todo: Todo) {
+    const todoToUpdate = {
+      id: todo.id,
+      title: todo.title,
+      description: todo.description,
+      linkedBlog: todo.linkedBlog,
+      done: todo.done
+    }
+
+    this.todoService.update(todoToUpdate).subscribe({
+      next: (updatedTodo) => {
+        console.log('Todo updated successfully:', updatedTodo);
+        const index = this.todos.findIndex(t => t.id === updatedTodo.id);
+        if (index !== -1) {
+          this.todos[index] = updatedTodo;
+        }
+      },
+      error: (err) => {
+        console.error('Error updating Todo:', err);
+        const originalTodo = this.todos.find(t => t.id === todo.id);
+        if (originalTodo) {
+          todo.done = originalTodo.done;
+        }
+      }
+    });
+  }
+
+  loadTodos(blogTitle: string) {
+    this.todoService.getAll().subscribe({
+      next: (todos) => {
+        this.todos = todos.filter(todo => todo.linkedBlog === blogTitle);
+
+        console.log('Loaded todos:', this.todos);
+      },
+      error: (err) => {
+        console.error('Could not load todos:', err);
+        this.todos = [];
+      }
+    });
+  }
+}
+```
+
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=15krF4z3WMf0CRRyjeoCS9wZVGziQnDet)
+
+Und alle diese Daten sind unter der `/api`-Schnittstelle zu finden. So befinden sich die Daten der Datenbank zu dieser Anwendung unter [localhost:5173/api/todos](http://localhost:5173/api/todos), bzw. können diese dort betrachtet werden. Hier ein Ausschnitt:
+
+```bash
+[
+  {
+    "id": 2,
+    "title": "Mentoring-Programm starten",
+    "description": "Ein Mentoring-Programm ins Leben rufen, um junge Fachkräfte in der [Berufsfeld]-Branche zu unterstützen.",
+    "linkedBlog": "die-bedeutung-von-mentoring",
+    "done": false
+  },
+  {
+    "id": 3,
+    "title": "Neue Lernressourcen recherchieren",
+    "description": "Online nach neuen Büchern, Kursen und Artikeln suchen, die beim lebenslangen Lernen helfen können.",
+    "linkedBlog": "die-bedeutung-von-lebenslangem-lernen",
+    "done": false
+  },
+  {
+    "id": 9,
+    "title": "Neue Fähigkeiten erlernen",
+    "description": "Einen Online-Kurs belegen, um neue Fähigkeiten in einem interessanten Bereich zu erlernen.",
+    "linkedBlog": "",
+    "done": false
+  },
+]
+```
+
+# Form Actions
+
+Um Formularübermittlungen zu handahben, oder zu validiern, kann die `FormAction`-Direktive von `@analogjs/router` verwendet werden. Die Direktive kümmert sich um das Sammeln der FormData und das Senden einer POST-Anfrage an den Server. 
+
+Die Direktive gibt je nach Zustand des Formulars drei verschidene Ereignisse zurück: 
+- `onSuccess`, wenn das Formular auf dem Server verarbeitet wird und eine Erfolgreiche Antwort zurückgibt 
+- `onError`, wenn das Formulat eine Fehlerantwort zurückgibt 
+- `onStateChange`, wenn das Formular abgesendet wird.
+
+[`newsletter.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/newsletter.page.ts) stellt ein simples Beispiel für die Verwendung einer solchen FormAction dar, in der ein Formular zu einem Newsletter-Abo simuliert wird.
+Aufzufunden über die [localhost:5173/landing](http://localhost:5173/landing) 
+
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1YJS9NaRc2CQsVpBgb8vIDWsA7QDCUgcr)
+
+```bash
+// src/app/pages/newsletter.page.ts
+import { Component, signal } from '@angular/core';
+
+import { FormAction } from '@analogjs/router';
+
+type FormErrors =
+  | {
+      email?: string;
+    }
+  | undefined;
+
+@Component({
+  selector: 'app-newsletter-page',
+  standalone: true,
+  imports: [FormAction],
+  template: `
+    <h3>Newsletter Signup</h3>
+
+    @if (!signedUp()) {
+      <form method="post"
+        (onSuccess)="onSuccess()"
+        (onError)="onError($any($event))"
+        (onStateChanges)="errors.set(undefined)"
+      >
+        <div>
+          <label for="email"> Email </label>
+          <input type="email" name="email" autocomplete="off" />
+        </div>
+
+        <button class="button" type="submit">Submit</button>
+      </form>
+
+      @if (errors()?.email) {
+        <p>{{ errors()?.email }}</p>
+      }
+    } @else {
+      <div>Thanks for signing up!</div>
+    }
+  `,
+})
+export default class NewsletterComponent {
+  signedUp = signal(false);
+  errors = signal<FormErrors>(undefined);
+
+  onSuccess() {
+    this.signedUp.set(true);
+  }
+
+  onError(result?: FormErrors) {
+    this.errors.set(result);
+  }
+}
+```
+
+Die `FormAction`-Direktive übermittelt die Formulardaten an den Server, wo sie von einem Handler verarbeitet werden.
+
+`FormErrors`ist hierbei ein benutzerdefineierter Typ mit einer `email`-Eigenschaft, die aber auch `undefined` sein kann, um Fehler im zusammenhang mit der FormAction zu typisieren.
+
+`onSuccess`: Eine Methode, die aufgerufen wird, wenn das Formular erfolgreich übermittelt wurde. Sie setzt signedUp auf true.
+
+`onError`: Eine Methode, die aufgerufen wird, wenn ein Fehler bei der Übermittlung des Formulars auftritt. Sie setzt die errors-Signale mit den empfangenen Fehlern.
+
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=12fUc9c2pH6dTTRb0lIrKTTSoRvwilWMy)
+
+Um die Formularaktion durchzuführen, muss eine `.server.ts`-Datein neben der `.page.ts`-Datei angelegt werden, die die asynchrone Aktionsfunktion zur Verarbeitung der Formularübermittlung enthält. In diesem Fall [newsletter.server.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/newsletter.server.ts)
+
+```bash
+// src/app/pages/newsletter.server.ts
+import {
+  type PageServerAction,
+  json,
+  fail,
+  redirect,
+} from '@analogjs/router/server/actions';
+import { readFormData } from 'h3';
+
+export async function action({ event }: PageServerAction) {
+  const body = await readFormData(event);
+  const email = body.get('email') as string;
+
+  if (!email) {
+    return fail(422, { email: 'Email is required' });
+  }
+
+  // In the server action, you can use access environment variables, read cookies, and perform other server-side only operations.
+
+  return json({ type: 'success' });
+}
+```
+
+Es gibt drei verschidene Antwortmöglichkeiten:
+- `json` wird verwendet, um eine JSON-Antwort an den Client zu senden, wie in dem Vorangegangenen Beispiel.
+- `redirect` wird verwendet, um nach erfolgreichem Absenden eines Formulars einen redirect auf einen andere Seite durchzuführen (`return redirect('/');`).
+- `fail` wird verwendet, um Formularvalidierungsfehler an den Client zurückzugeben.
+
+Sollte zum Beispiel auf die Schaltfläche gedrückt werden, ohne, dass eine valide Mail-Adresse eingegeben wird, dann wird auch der eingestellte Fehlercode `422` gesendet mit der Nachricht: `email: Email is required`.
+
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1moFgGn4cl0hUXE2aX96CTMBGfc-JQwYp)
+
+Sollte aber eine valide Mail-Adresse eingegeben werden, dann wird ein `200`-er Code vom Handler gesendet und eine Dankesnachricht angezeigt.
+
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1cxKjYh-0UCVb_M5WcXDS9wahy2QKob9m)
+
+Es können auch `GET`-Requests verarbeitet werden, dann könnte der Rückgabewert wie folgt aussehen
+
+```bash
+return {
+  loaded: true,
+  searchTerm: `${query['search']}`,
+};
+```
+
+# Static Site Generation
+
+AnalogJS erlaubt die Static Site Generation beim Fertigstellen (Deployment) der Anwendung, vor allem mit dem Pre-Renderen von Routen zu statischen HTML-Dateien zusammen mit der clientseitigen Anwendung.
+
+Das Pre-Renderen kann in der [`vite.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/vite.config.ts) in der `prerender`-Eigenschaft eingestellt werden, die dann zu Build Zeit gerendert werden. Diese können auch asynchron bereitgestellt werden. 
+
+Ebenfalls können Inhalte aus dem [`src/content`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/content)-Ordner zum Pre-Renderen hinzugefügt werden. Dafür kann man den `contentDir`-Wert verwenden, wie in dem Beispiel gezeigt. 
+Die Verzeichnisstruktur wird möglicherweise nicht 1:1 in den Pfaden der Anwendung widergespiegelt. Daher musst eine Transformationsfunktion übergeben werden, die die Dateipfade auf die URLs abbildet. Der zurückgegebene String sollte der URL-Pfad in der Anwendung sein. 
+Die Verwendung von transform ermöglicht es auch, bestimmte Routen herauszufiltern, indem man false zurückgibst.
+
+```bash
+// vite.config.ts
+import { defineConfig } from 'vite';
+import analog, { type PrerenderContentFile } from '@analogjs/platform';
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    analog({
+      prerender: {
+        routes: [
+          '/',
+          '/landing',
+          '/newsletter',
+          '/todo',
+          '/about',
+          '/blog',
+          {
+            contentDir: 'src/content/blog',
+            transform: (file: PrerenderContentFile) => {
+              const name = file.name;
+              return `/blog/${name}`;
+            },
+          },
+        ],
+      },
+    }),
+  ],
+}));
+```
+
+# Server Side Rendering
