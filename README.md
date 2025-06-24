@@ -1,21 +1,25 @@
 
 # Analog-Projektarbeit
 
+
 ## Analog
 [Analog](https://analogjs.org/) ist ein Web-Framework, das auf Angular aufbaut. In dieser Arbeit wird ein Beispiel erstellt, das die Stärken und Schwächen von Analog zeigen soll.
+
 
 ### Features (Quelle: [Analog Website](https://analogjs.org))
 Analog bietet folgende Funktionen:  
 
-- **Vite-powered**: Analog verwendet Vite zum Bereitstellen und Erstellen sowie Vitest für Tests.  
+- **Vite-powered**: Analog verwendet Vite zum Bereitstellen und Erstellen, sowie Vitest für Tests.  
 - **Hybrid SSR/SSG support**: Unterstützt sowohl Server-Side Rendering (SSR) als auch Static Site Generation (SSG).  
 - **File-based routing and API routes**: Nutzt dateibasierte Routen und unterstützt API-Routen für Angular-Anwendungen.  
 
 Weitere Informationen in der [Analog Doku](https://analogjs.org/docs).
 
+
 ## Projekt Setup
 
 Für die genaueren Details, wie das Projekt mit analogJS und Prisma aufgesetzt werden soll, den Hinweisen [hier](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/README.md) folgen.
+
 
 ## Projekt Struktur
 
@@ -79,14 +83,16 @@ src/
             └── vite-env.d.ts
 ```
 
+
 # Routing in AnalogJS
+
 
 ## File Base Routing in AnalogJS
 
-Für das file-based Routing muss die `provideFileRouter()`-Komponente in dem `providers`-Array in [`app.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/app.config.ts) hinzugefügt werden, wenn die Anwendung gestartet wird.
+Für das file-based Routing muss die `provideFileRouter()`-Funktion in dem `providers`-Array in [`app.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/app.config.ts) hinzugefügt werden, beim Starten der Anwendung.
 
-<pre>
-<code>// src/app/app.config.ts
+```TypeScript
+// src/app/app.config.ts
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -96,39 +102,41 @@ import { provideContent, withMarkdownRenderer } from '@analogjs/content';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    <mark>provideFileRouter()</mark>,
+    provideFileRouter(),
     provideHttpClient(withFetch(), withInterceptors([requestContextInterceptor])),
     provideClientHydration(),
     provideContent(withMarkdownRenderer()),
   ],
-};</code>
-</pre>
+};
+```
 
+Alle Seiten werden als Routen definiert. Dies erfolgt über die `.page.ts`-Dateiendung im [`/src/app/pages`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/app/pages)-Ordner und nur die Dateien mit diesen Endung werden als Routen erstellt.
 
-Alle Seiten werden darauf als Routen definiert. Dies erfolgt über die `.page.ts`-Dateiendung im [`/src/app/pages`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/app/pages)-Ordner und nur die Dateien mit diesen Endung werden als Routen erstellt.
+Es muss die `standalone: true`-Eigenschaft im `@Component-Dekorator` verwendet werden, da AnalogJS das file-based Routing nur damit unterstützen kann.
 
-Es muss die `standalone: true` Komponente im `@Component-Dekorator` verwendet werden, da analogJS das file-based Routing nur damit bereitstellen kann.
-
-Danach sind alle Routen auch über den Namen, den diese haben erreichbar. Das file-based Routing ermöglicht es nur auf das Konfigurieren von Routen zu verzichten, ansonsten gibt es keine Abweichungen, davon, wie eine Angular Anwendung erstellt wird.
+Danach sind alle Routen über ihren Dateinamen erreichbar. Das file-based Routing ermöglicht es nur auf das Konfigurieren von Routen zu verzichten, ansonsten gibt es keine Abweichungen, davon, wie eine Angular Anwendung erstellt wird.
 
 [`index.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/index.page.ts) stellt dabei die Index Route dar, die unter [localhost:5173/](http://localhost:5173/) erreichbar ist.
 
+
 # Routen definieren in analogJS
+
 
 ## Definieren von Index-Routen
 
-Index-Routen werden über einfache Klammern im Datei-, bzw. Orndernamen definiert.
+Index-Routen werden über einfache Klammern im Ordner- bzw. Dateinamen definiert.
 
-So definiert z. B. `src/app/pages/(home).page.ts` eine `/`-Route.
+So definiert z. B. `src/app/pages/(home).page.ts` die Index-Route `/`.
 
-Ein Beispiel für solche Index-Routen in der Anwendung, sind sämtliche Routen im [`src/server/routes/api/todos`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api/todos)-Verzeichnis, die HTTP-Methoden darstellen. Dies verinfacht die Aufrufe dieser Methoden, bei HTTP-Anfragen.
+Ein Beispiel für solche Index-Routen in der Anwendung, sind sämtliche Routen im [`src/server/routes/api/todos`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api/todos)-Verzeichnis, die HTTP-Methoden darstellen. Dies vereinfacht die Aufrufe dieser Methoden bei HTTP-Anfragen.
+
 
 ## Definieren von statischen Routen in analogJS
 
 Ein Beispiel für eine statische Route ist die [`landing.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/landing.page.ts)-Seite. Diese nimmt keine dynamischen Werte an und stellt eine simple Landing Page dar.
 Dementsprechend reicht es einfach diese Datei im [`/src/app/pages`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/app/pages)-Ordner zu erstellen und über [localhost:5173/landing](http://localhost:5173/landing) zu erreichen.
 
-```bash
+```TypeScript
 // src/app/pages/landing.page.ts
 import { Component, inject } from "@angular/core";
 import { RouterLink, RouterOutlet } from "@angular/router";
@@ -160,22 +168,24 @@ export default class LandingPage {
 
 Bei statischen Routen reicht es einfach den Dateiname als Pfad der Route zu verwenden.
 
+
 ## Hinweise zu verschachtelten Routen
 
 Es lassen sich auch verschachtelte statische, sowie dynamische Routen auf zwei Arten definieren: 
 - Über Router-Dateien in Ordnern, z. B. `src/app/pages/about/team.page.ts` 
-- Ooder über Punktnotation im Dateinamen `src/app/pages/about.team.page.ts` 
+- oder über Punktnotation im Dateinamen `src/app/pages/about.team.page.ts` 
 Beide Varianten führen zum selben Ziel, einer `/about/team`-Route.
 
-Ein Beispiel für solche verschachtelte Routen in der Anwendung, die mit der Punktnotation arbeiten, sind sämtliche Routen im [`src/server/routes/api/todos`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api/todos)-Verzeichnis. Wobei anzumerken ist, dass es sich um eine Kombination aus beiden Varianten handelt und es sich bei diesen Routen nicht um statische sondern dynmaiche Routen handelt.
+Ein Beispiel für solche verschachtelte Routen in der Anwendung, die mit der Punktnotation arbeiten, sind sämtliche Routen im [`src/server/routes/api/todos`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api/todos)-Verzeichnis. Wobei anzumerken ist, dass es sich um eine Kombination aus beiden Varianten handelt und es sich bei diesen Routen nicht um statische sondern dynamische Routen handelt.
+
 
 ## Definieren von dynamischen Routen in analogJS
 
-Wenn man eine Seite erstellen möchte, die dynamische Parameter oder Ähnliches verwendet, kann man, wie bei den statischen auf flache Routen zurückgreifen, oder ebenfals auf verschachtelte Routen zurückgreifen.
+Wenn man eine Seite erstellen möchte, die dynamische Parameter oder Ähnliches verwendet, kann man, wie bei den statischen auf flache Routen zurückgreifen, oder ebenso auf verschachtelte Routen zurückgreifen.
 
-Ein solches Beispiel ist [`parameter.[slug].page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/parameter.%5Bslug%5D.page.ts). `[slug]` repräsentiert hierbei einen belieben Wert, der als Parameter angenommen wird.
+Ein solches Beispiel ist [`parameter.[slug].page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/parameter.%5Bslug%5D.page.ts). `[slug]` repräsentiert hierbei einen beliebigen Wert, der als Parameter angenommen wird.
 
-```bash
+```TypeScript
 // src/app/pages/parameter.[slug].page.ts
 @Component({
   selector: "dynamic-parameter",
@@ -197,11 +207,12 @@ Diese Seite nimmt einen beliebigen Wert an und zeigt diesen auf der Seite an, si
 
 ![IMG_localhost:5173/parameter/1](https://drive.google.com/uc?export=view&id=1oiUP6Sb_LvajG-rTFcJYy0RDukaDIYaD)
 
+
 # Übergeordnete und Untergeordnete Routen mit dynamischen Parametern (Eltern-Kind-Prinzip)
 
-Auch Layout Routes genannt. Hierfür wird eine übergeordnete Seite benötigt, hier die [`blog.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog.page.ts):
+Diese werden auch als Layout-Routen bezeichnet. Hierfür wird eine übergeordnete Seite benötigt, in diesem Fall die [`blog.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog.page.ts):
 
-```bash
+```TypeScript
 // src/app/pages/blog.page.ts
 import { Component } from "@angular/core";
 import { RouterLink, RouterOutlet } from "@angular/router";
@@ -222,13 +233,13 @@ import { RouterLink, RouterOutlet } from "@angular/router";
 export default class BlogPage {}
 ```
 
-Diese Seite stellt das übergeordnete Elternelement dar, welches für die verschachtelte Funktion den `RouterOutlet` von `@angular/router`importiert und das `<router-outlet />`-Element im Template nutzt, um die Kinderrouten anzuzeigen, oder eine Menge von Kinderrouten.
+Diese Seite stellt das übergeordnete Elternelement dar, welches für die verschachtelte Funktion den `RouterOutlet` von `@angular/router`importiert und das `<router-outlet />`-Element im Template nutzt, um die Kinderrouten anzuzeigen, oder eine Menge von Kinderrouten anzuzeigen.
 
 Alle untergeordneten Routen müssen sich in einem Ordner befinden, der den selben Namen hat, wie die übergeordnete Route.
 
-Sollte zu [localhost:5173/blog](http://localhost:5173/blog) navigiert werden, wird dieser Inhalt angezeigt (hier eine simple Navigationsleiste) und das `<router-outlet />`-Element navigiert sofort zur [`/blog/index.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/index.page.ts)-Seite (Hier eine Liste aller Existierenden Blogeinträge), die die neue Index-Seite der Kinderrouten darstellt und diese verschachtelt auf der Elternseite neben dessen Inhalten anzeigt.
+Wenn zu [localhost:5173/blog](http://localhost:5173/blog) navigiert wird, wird dieser Inhalt angezeigt (hier eine simple Navigationsleiste) und das `<router-outlet />`-Element navigiert sofort zur [`/blog/index.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/index.page.ts)-Seite (Hier eine Liste aller existierenden Blogeinträge), die als neue Index-Seite der Kinderrouten fungiert und diese verschachtelt auf der Elternseite neben dessen Inhalten anzeigt.
 
-```bash
+```TypeScript
 // src/app/pages/blog/index.page.t
 import { Component } from "@angular/core";
 import { NgFor } from "@angular/common";
@@ -261,9 +272,9 @@ export default class IndexPage {
 
 ![IMG_localhost:5173/blog](https://drive.google.com/uc?export=view&id=1VjMThPP15z5EzVzyFJcRHa_0dwUIe_VR)
 
-Sollte man auf einen der Blogeinträge klicken, wird die aktuelle untergeordnete Route mit einer dynamischen Route [`[slug].page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/%5Bslug%5D.page.ts) ersetzt, die den Inhalt des angeklickten Blogeintrags anzeigt.
+Sollte man auf einen der Blogeinträge klicken, wird die aktuelle untergeordnete Route mit einer dynamischen Route [`[slug].page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/%5Bslug%5D.page.ts) ersetzt, die den Inhalt des ausgewählten Blogeintrags anzeigt.
 
-```bash
+```TypeScript
 // src/app/pages/blog/[slug].page.ts
 import { MarkdownComponent, injectContent } from "@analogjs/content";
 
@@ -299,11 +310,12 @@ export default class BlogPostPage {
 
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1BnQzzawInXUcIVbR93VkO6-G6N36JPnP)
 
+
 # Routen von Metadaten
 
-Zusätzliche Metadaten können zu jeder Route mit dem `RouteMeta`-Typ definiert werden, wie Seitentitel, Guards, Resolver, Provider, etc.
+Zusätzliche Metadaten können für jede Route mit dem `RouteMeta`-Typ definiert werden, wie Seitentitel, Guards, Resolver, Provider usw.
 
-```bash
+```TypeScript
 import { RouterOutlet } from "@angular/router";
 
 export const routeMeta: RouteMeta = {
@@ -313,9 +325,9 @@ export const routeMeta: RouteMeta = {
 };
 ```
 
-Ebenfalls sind mit dem Typ `RouteMeta` redirect Routes möglich, die sofort auf die Ziel Route wechslen. Dafür sind die `redirectTo` und `pathMatch` Eigenschaften zuständig. In dieser Anwendung wird eine solche redirectRoute in [`index.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/index.page.ts) angewendet.
+Ebenfalls sind mit dem Typ `RouteMeta` redirect Routes möglich, die sofort zur Zielroute wechseln. Hierfür sind die Eigenschaften `redirectTo` und `pathMatch` zuständig. In dieser Anwendung wird eine solche redirectRoute in [`index.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/index.page.ts) angewendet.
 
-```bash
+```TypeScript
 // src/app/pages/index.page.ts
 import { RouteMeta } from "@analogjs/router";
 
@@ -325,11 +337,11 @@ export const routeMeta: RouteMeta = {
 }
 ```
 
-Dies leitet den Nutzer von der `/` Route zur `/landing` Route.
+Dies leitet den Nutzer von der Route `/` zur Route `/landing` weiter.
 
-Ansonsten gibt es noch die `Meta`-Eigenschaft, die ein `RouteMeta`-Typ hat, um eine Liste an Meta Tags für jede Route zu definieren.
+Ansonsten gibt es noch die `Meta`-Eigenschaft, die ein `RouteMeta`-Typ hat, um eine Liste von Meta-Tags für jede Route zu definieren.
 
-```bash
+```TypeScript
 export const routeMeta: RouteMeta = {
   title: 'Refresh every 30 sec',
   meta: [
@@ -343,15 +355,16 @@ export const routeMeta: RouteMeta = {
 
 Dieses Beispiel würde den Browser dazu auffordern alle 30 Sekunden einen Refresh durchzuführen.
 
+
 # Catch-All-Routen
 
-Catch-All-Routen werden definiert, indem der Dateiname als Routenpfad verwendet wird, der mit drei Punkten in eckigen Klammern vorangestellt wird.
+Catch-All-Routen werden definiert, indem der Dateiname als Routenpfad verwendet wird, wobei drei Punkte in eckigen Klammern vorangestellt werden.
 
-Die Beispielroute unten in [`[...page-not-found].page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/%5B...page-not-found%5D.page.ts) definiert eine Platzhalter-Route (wildcard `**`-Route). Diese Route wird normalerweise für 404-Seiten verwendet.
+Die Beispielroute unten in [`[...page-not-found].page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/%5B...page-not-found%5D.page.ts) definiert eine Platzhalter-Route (wildcard `**`-Route). Diese Route wird typischerweise für 404-Seiten verwendet.
 
 Die eckigen Klammern zeigen an, dass die Route dynamisch ist. Der Ausdruck `[...page-not-found]` wird als Parameter behandelt, und die Auslassungspunkte `(...)` zeigen an, dass die Route jeden Pfad abdecken soll, der nicht von anderen Routen erfasst wurde. Durch das Erstellen dieser oder einer ähnlichen Catch-All-Route kann sichergestellt werden, dass deine Anwendung undefinierte Routen elegant behandelt, was zu einer besseren Benutzererfahrung führt.
 
-```bash
+```TypeScript
 // src/app/pages/[...page-not-found].page.ts
 import { RouteMeta } from "@analogjs/router";
 import { injectResponse } from "@analogjs/router/tokens";
@@ -386,16 +399,18 @@ export default class PageNotFoundPage {}
 
 Dies ist ein simples Beispiel für eine `404-Seite`, die in der `RouteMeta` einen `404`-Statuscode an den Server sendet. 
 
+
 # Markdown als Routen
+
 
 ## Content Routen definieren
 
-AnalogJS unterstützt die Verwendung von Content Routen, in denen Markdown Inhalte als Routen definiert werden können.
+AnalogJS unterstützt die Verwendung von Content-Routen, bei denen Markdown-Inhalte als Routen definiert werden können.
 
-Dafür muss die `MarkDownRenderer()` Komponente in der `provideContent()`-Funktion dem `providers`-Array in [`app.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/app.config.ts) hinzugefügt werden, wenn die Anwendung gestartet wird.
+Dafür muss die `withMarkdownRenderer()`-Funktion in der `provideContent()`-Funktion dem `providers`-Array in [`app.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/app.config.ts) hinzugefügt werden, wenn die Anwendung gestartet wird.
 
-<pre>
-<code>// src/app/app.config.ts
+```TypeScript
+// src/app/app.config.ts
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
@@ -408,22 +423,23 @@ export const appConfig: ApplicationConfig = {
     provideFileRouter(),
     provideHttpClient(withFetch(), withInterceptors([requestContextInterceptor])),
     provideClientHydration(),
-    <mark>provideContent(withMarkdownRenderer()),</mark>
+    provideContent(withMarkdownRenderer()),
   ],
-};</code>
-</pre>
+};
+```
 
 Dies ermöglicht es, dass [`src/app/pages/about.md`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/about.md) als Route definiert wird und in [localhost:5173/about](http://localhost:5173/about) als solche angezeigt wird.
 
 ![IMG_localhost:5173/about](https://drive.google.com/uc?export=view&id=188ezG6VevOVcRFMehJKgUCVvT0BQSwhA)
 
+
 ## Content Dateien definieren
 
 Für mehr Flexibilität Befinden sich alle Blogeinträge dieser Anwendung als Content Daten im [`src/content`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/content)-Ordner hinterlegen.
 
-Dise sind alle gleich aufgebaut mit einer Frontmatter und dem Inhalt an sich.
+Diese sind alle gleich aufgebaut mit einer Frontmatter und dem eigentlichen Inhalt.
 
-```bash
+```markdown
 <!-- src/content/die-bedeutung-von-lebenslangem-lernen.md -->
 ---
 title: Die Bedeutung von lebenslangem Lernen
@@ -442,7 +458,7 @@ Ich habe immer geglaubt, dass Lernen ein  lebenslanger Prozess ist. In diesem Be
 
 Diese Inhalte werden in dieser Anwendung an zwei Stellen zugegriffen. Einmal in [`blog/index.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/index.page.ts), in dem über `injectContentFiles<BlogPost>()`, bereitgestellt von `@analogjs/content`, eine Liste aller Blogeinträge aus dem [`src/content`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/content)-Ordner als Liste extrahiert werden.
 
-```bash
+```TypeScript
 // src/app/pages/blog/index.page.ts
 import { Component } from "@angular/core";
 import { NgFor } from "@angular/common";
@@ -474,9 +490,9 @@ export default class IndexPage {
 }
 ```
 
-Diese Funktion extrahiert die Frontmatter aus der Markdown-Datei in das Interface [`BlogPost`]( https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/models/post.ts)
+Diese Funktion extrahiert die Frontmatter aus der Markdown-Datei und ordnet sie dem [`BlogPost`]( https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/models/post.ts)-Interface zu.
 
-```bash
+```TypeScript
 // src/app/models/post.ts
 export interface BlogPost {
     title: string;
@@ -489,7 +505,7 @@ export interface BlogPost {
 
 Der zweite Zugriff auf den [`src/content`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/content)-Ordner passiert in [`blog/[slug].page.ts `](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/%5Bslug%5D.page.ts) über `injectContent<BlogPost>()`, ebenfalls bereitgestellt von `@analogjs/content`. Doch diesmal wird eine explizite Markdown-Datei, anhand des `[slug]`-Parameters ausgewählt und auf das [`BlogPost`]( https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/models/post.ts)-Interface gemapped. Der Inhalt der Markdown-Datei wird über `<analog-markdown [content]="post.content" />` angezeigt.
 
-```bash
+```TypeScript
 // src/app/pages/blog/[slug].page.ts
 import { TodoService, Todo } from './../../todo.services';
 import { MarkdownComponent, injectContent } from "@analogjs/content";
@@ -532,21 +548,23 @@ export default class BlogPostPage {
 
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=15krF4z3WMf0CRRyjeoCS9wZVGziQnDet)
 
+
 # API Routen
 
-AnalogJS unterstützt auch API-Routen, die verwendet werden können, um Daten/Inhalte für die Anwendung bereitzustellen.
+AnalogJS unterstützt auch API-Routen, die verwendet werden können, um Daten und Inhalte für die Anwendung bereitzustellen.
 
-Diese API-Routen werden in [`src/server/routes/api`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api) definiert und basieren auch auf dem Prinzip des file-based Routing und sind unter dem Präfix `/api` verfügbar.
+Diese API-Routen werden im Verzeichnis [`src/server/routes/api`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api) definiert und basieren ebenfalls auf dem Prinzip des file-based Routing. Sie sind unter dem Präfix `/api` verfügbar.
 
-Hier lassen sich viele APIs implementieren, wie XML-Inhalte, Catch-All-Routen, Fehlerbehandlung, Cookies oder Datenbanken, wenn nötig kann auch nextJS integriert werden. Diese werden alle auf dem Server laufen, ohne einen zusätzlichen Serverprozess starten zu müssen. Diese Routen sind unter dem Präfix `/api` verfügbar. Weitere Informationen und Beispiele gibt es in den [AnalogJS Dokumentationen](https://analogjs.org/docs/features/api/overview).
+Hier lassen sich viele APIs implementieren, darunter XML-Inhalte, Catch-All-Routen, Fehlerbehandlung, Cookies oder Datenbanken. Falls nötig, kann auch NextJS integriert werden. Diese laufen alle auf dem Server, ohne dass ein zusätzlicher Serverprozess gestartet werden muss. Diese Routen sind unter dem Präfix `/api` verfügbar. Weitere Informationen und Beispiele gibt es in den [AnalogJS Dokumentationen](https://analogjs.org/docs/features/api/overview).
 
-Dies Anwendung beschränkt sich auf eine Implementation einer [PrismaDB](https://www.prisma.io/) zur Handbabung von Todos auf dem Server.
+Für die Handhabung der Todos in der Anwendung wird ein einfaches Schema mit [PrismaDB](https://www.prisma.io/) implementiert.
+
 
 ## Datenbanken und API-Routen
 
 Für die Handbabung von den Todos in der Anwendung wird ein simples Schema mit PrismaDB implementiert unter [`schema.prisma`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/prisma/schema.prisma)
 
-```bash
+```TypeScript
 // prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
@@ -568,7 +586,7 @@ model Todo {
 }
 ```
 
-Alle Datenbankzugriffe erfolgen unter den API-Routen in [`src/server/routes/api/todos`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api/todos) und alle diese Routen implementieren entsprechende HTTP-Methoden.
+Alle Datenbankzugriffe erfolgen über die API-Routen in [`src/server/routes/api/todos`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api/todos), wobei jede dieser Routen entsprechende HTTP-Methoden implementiert.
 
 ```bash
 src/
@@ -589,7 +607,7 @@ src/
 
 Zum Beispiel [`todos/(get)/index.get.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/server/routes/api/todos/(get)/index.get.ts):
 
-```bash
+```TypeScript
 // src/server/routes/api/todos/(get)/index.get.ts
 import { defineEventHandler } from 'h3';
 import { PrismaClient } from '@prisma/client';
@@ -602,9 +620,9 @@ export default defineEventHandler(async (event) => {
 });
 ```
 
-Auf alle diese Routen wird in einem Service [`todo.services.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/todo.services.ts) zugegriffen und der Anwendung zur Verfügung gestellt.
+Auf alle diese Routen wird über einen Service in [`todo.services.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/todo.services.ts) zugegriffen, der der Anwendung diese Funktionen zur Verfügung stellt.
 
-```bash
+```TypeScript
 // src/app/todo.services.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -648,9 +666,9 @@ export class TodoService {
 }
 ```
 
-Und die Seite [`todo.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/todo.page.ts) nutzt diese Services in der Anwendung zum Handhaben von Todos. Hier können die einzelnen Todos angezeigt werden, bearbeitet und gelöscht werden, neue Todos können hier erstellt werden und Todos können als abgeschlossen markiert werden.
+Die Seite [`todo.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/todo.page.ts) nutzt diese Services in der Anwendung zur Handhabung von Todos. Hier können die einzelnen Todos angezeigt, bearbeitet und gelöscht werden. Neue Todos können erstellt und als abgeschlossen markiert werden.
 
-```bash
+```TypeScript
 // src/app/pages/todo.page.ts
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from "@angular/core";
@@ -880,9 +898,9 @@ export default class TodoPage {
 
 ![IMG_localhost:5173/todo](https://drive.google.com/uc?export=view&id=1UGTztLaLUTK2ktdahoVW8gVn0afcxFSl)
 
-Auch in den einzelnen Blogeinträgen in [[slug].page.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/%5Bslug%5D.page.ts), wird auf diese Todos zugegriffen, hier werden jedoch nur die Todos angezeigt, die auch eine Verknüpfung zu diesm Blogeintrag haben.
+Auch in den einzelnen Blogeinträgen in [[slug].page.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/%5Bslug%5D.page.ts)wird auf diese Todos zugegriffen. Hier werden jedoch nur die Todos angezeigt, die eine Verknüpfung zu diesem Blogeintrag haben.
 
-```bash
+```TypeScript
 // src/app/pages/blog/[slug].page.ts
 import { TodoService, Todo } from './../../todo.services';
 import { MarkdownComponent, injectContent } from "@analogjs/content";
@@ -977,7 +995,7 @@ export default class BlogPostPage {
 
 Und alle diese Daten sind unter der `/api`-Schnittstelle zu finden. So befinden sich die Daten der Datenbank zu dieser Anwendung unter [localhost:5173/api/todos](http://localhost:5173/api/todos), bzw. können diese dort betrachtet werden. Hier ein Ausschnitt:
 
-```bash
+```json
 [
   {
     "id": 2,
@@ -1003,21 +1021,22 @@ Und alle diese Daten sind unter der `/api`-Schnittstelle zu finden. So befinden 
 ]
 ```
 
+
 # Form Actions
 
-Um Formularübermittlungen zu handahben, oder zu validiern, kann die `FormAction`-Direktive von `@analogjs/router` verwendet werden. Die Direktive kümmert sich um das Sammeln der FormData und das Senden einer POST-Anfrage an den Server. 
+Um Formularübermittlungen zu handhaben oder zu validieren, kann die `FormAction`-Direktive von `@analogjs/router` verwendet werden. Die Direktive kümmert sich um das Sammeln der FormData und das Senden einer POST-Anfrage an den Server. 
 
-Die Direktive gibt je nach Zustand des Formulars drei verschidene Ereignisse zurück: 
-- `onSuccess`, wenn das Formular auf dem Server verarbeitet wird und eine Erfolgreiche Antwort zurückgibt 
-- `onError`, wenn das Formulat eine Fehlerantwort zurückgibt 
+Die Direktive gibt je nach Zustand des Formulars drei verschiedene Ereignisse aus.
+- `onSuccess`, wenn das Formular auf dem Server verarbeitet wird und eine erfolgreiche Antwort zurückgibt.
+- `onError`, wenn das Formular eine Fehlerantwort zurückgibt.
 - `onStateChange`, wenn das Formular abgesendet wird.
 
 [`newsletter.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/newsletter.page.ts) stellt ein simples Beispiel für die Verwendung einer solchen FormAction dar, in der ein Formular zu einem Newsletter-Abo simuliert wird.
-Aufzufunden über die [localhost:5173/landing](http://localhost:5173/landing) 
+Zu finden unter [localhost:5173/landing](http://localhost:5173/landing) 
 
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1YJS9NaRc2CQsVpBgb8vIDWsA7QDCUgcr)
 
-```bash
+```TypeScript
 // src/app/pages/newsletter.page.ts
 import { Component, signal } from '@angular/core';
 
@@ -1073,18 +1092,15 @@ export default class NewsletterComponent {
 ```
 
 Die `FormAction`-Direktive übermittelt die Formulardaten an den Server, wo sie von einem Handler verarbeitet werden.
-
-`FormErrors`ist hierbei ein benutzerdefineierter Typ mit einer `email`-Eigenschaft, die aber auch `undefined` sein kann, um Fehler im zusammenhang mit der FormAction zu typisieren.
-
-`onSuccess`: Eine Methode, die aufgerufen wird, wenn das Formular erfolgreich übermittelt wurde. Sie setzt signedUp auf true.
-
-`onError`: Eine Methode, die aufgerufen wird, wenn ein Fehler bei der Übermittlung des Formulars auftritt. Sie setzt die errors-Signale mit den empfangenen Fehlern.
+- `FormErrors`: ist ein benutzerdefinierter Typ mit einer `email`-Eigenschaft, die auch `undefined` sein kann, um Fehler im Zusammenhang mit der FormAction zu typisieren.
+- `onSuccess`: Eine Methode, die aufgerufen wird, wenn das Formular erfolgreich übermittelt wurde. Sie setzt `signedUp` auf `true`.
+- `onError`: Eine Methode, die aufgerufen wird, wenn ein Fehler bei der Übermittlung des Formulars auftritt. Sie setzt die `errors`-Signale mit den empfangenen Fehlern.
 
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=12fUc9c2pH6dTTRb0lIrKTTSoRvwilWMy)
 
-Um die Formularaktion durchzuführen, muss eine `.server.ts`-Datein neben der `.page.ts`-Datei angelegt werden, die die asynchrone Aktionsfunktion zur Verarbeitung der Formularübermittlung enthält. In diesem Fall [newsletter.server.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/newsletter.server.ts)
+Um die Formularaktion durchzuführen, muss eine `.server.ts`-Datei neben der `.page.ts`-Datei angelegt werden, die die asynchrone Aktionsfunktion zur Verarbeitung der Formularübermittlung enthält. In diesem Fall [newsletter.server.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/newsletter.server.ts)
 
-```bash
+```TypeScript
 // src/app/pages/newsletter.server.ts
 import {
   type PageServerAction,
@@ -1108,39 +1124,45 @@ export async function action({ event }: PageServerAction) {
 }
 ```
 
-Es gibt drei verschidene Antwortmöglichkeiten:
-- `json` wird verwendet, um eine JSON-Antwort an den Client zu senden, wie in dem Vorangegangenen Beispiel.
+Es gibt drei verschiedene Antwortmöglichkeiten.
+- `json` wird verwendet, um eine JSON-Antwort an den Client zu senden, wie im vorangegangenen Beispiel gezeigt.
 - `redirect` wird verwendet, um nach erfolgreichem Absenden eines Formulars einen redirect auf einen andere Seite durchzuführen (`return redirect('/');`).
 - `fail` wird verwendet, um Formularvalidierungsfehler an den Client zurückzugeben.
 
-Sollte zum Beispiel auf die Schaltfläche gedrückt werden, ohne, dass eine valide Mail-Adresse eingegeben wird, dann wird auch der eingestellte Fehlercode `422` gesendet mit der Nachricht: `email: Email is required`.
+Wird zum Beispiel auf die Schaltfläche gedrückt, ohne dass eine valide E-Mail-Adresse eingegeben wird, dann wird der Fehlercode `422` mit der Nachricht `email: Email is required` gesendet.
 
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1moFgGn4cl0hUXE2aX96CTMBGfc-JQwYp)
 
-Sollte aber eine valide Mail-Adresse eingegeben werden, dann wird ein `200`-er Code vom Handler gesendet und eine Dankesnachricht angezeigt.
+Wird jedoch eine valide E-Mail-Adresse eingegeben, dann wird ein `200`-Code vom Handler gesendet und eine Dankesnachricht angezeigt.
 
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1cxKjYh-0UCVb_M5WcXDS9wahy2QKob9m)
 
-Es können auch `GET`-Requests verarbeitet werden, dann könnte der Rückgabewert wie folgt aussehen
+Es können auch `GET`-Requests verarbeitet werden. Der Rückgabewert könnte dann wie folgt aussehen.
 
-```bash
+```TypeScript
 return {
   loaded: true,
   searchTerm: `${query['search']}`,
 };
 ```
 
-# Static Site Generation
 
-AnalogJS erlaubt die Static Site Generation beim Fertigstellen (Deployment) der Anwendung, vor allem mit dem Pre-Renderen von Routen zu statischen HTML-Dateien zusammen mit der clientseitigen Anwendung.
+# Static Site Generation (SSG) und Server Side Rendering (SSR)
 
-Das Pre-Renderen kann in der [`vite.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/vite.config.ts) in der `prerender`-Eigenschaft eingestellt werden, die dann zu Build Zeit gerendert werden. Diese können auch asynchron bereitgestellt werden. 
+AnalogJS ermöglicht die Static Site Generation beim Deployment der Anwendung, insbesondere durch das Pre-Rendering von Routen zu statischen HTML-Dateien zusammen mit der clientseitigen Anwendung.
 
-Ebenfalls können Inhalte aus dem [`src/content`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/content)-Ordner zum Pre-Renderen hinzugefügt werden. Dafür kann man den `contentDir`-Wert verwenden, wie in dem Beispiel gezeigt. 
-Die Verzeichnisstruktur wird möglicherweise nicht 1:1 in den Pfaden der Anwendung widergespiegelt. Daher musst eine Transformationsfunktion übergeben werden, die die Dateipfade auf die URLs abbildet. Der zurückgegebene String sollte der URL-Pfad in der Anwendung sein. 
-Die Verwendung von transform ermöglicht es auch, bestimmte Routen herauszufiltern, indem man false zurückgibst.
 
-```bash
+## SSG/SSR: Pre-Rendering von Routen
+
+Das Pre-Rendering kann in der [`vite.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/vite.config.ts) in der `prerender`-Eigenschaft konfiguriert werden, um die Seiten zur Build-Zeit zu rendern. Diese können auch asynchron bereitgestellt werden. 
+
+Die `/`-Route ist standardmäßig vorgerendert, da es notwendig ist, eine gerenderte HTML-Seite zurückzugeben, wenn der Nutzer die Wurzel der Anwendung besucht. Beim Anpassen der Routen fürs pre-rendering muss die `/`-Route jedoch mit einbezogen werden.
+
+Ebenfalls können Inhalte aus dem [`src/content`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/content)-Ordner zum Pre-Rendering hinzugefügt werden. Hierfür kann der `contentDir`-Wert verwendet werden, wie im Beispiel gezeigt.
+Die Verzeichnisstruktur wird möglicherweise nicht 1:1 in den Pfaden der Anwendung widergespiegelt. Daher muss eine Transformationsfunktion übergeben werden, die die Dateipfade auf die URLs abbildet. Der zurückgegebene String sollte der URL-Pfad in der Anwendung sein.
+Die Verwendung von `transform` ermöglicht es auch, bestimmte Routen herauszufiltern, indem `false` zurückgegeben wird.
+
+```TypeScript
 // vite.config.ts
 import { defineConfig } from 'vite';
 import analog, { type PrerenderContentFile } from '@analogjs/platform';
@@ -1171,4 +1193,97 @@ export default defineConfig(({ mode }) => ({
 }));
 ```
 
-# Server Side Rendering
+Ist das Pre-Rendering jedoch nicht gewünscht, kann einfach ein leeres Array für die Routen übergeben werden.
+
+```TypeScript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import analog from '@analogjs/platform';
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => ({
+  //...
+  plugins: [
+    analog({
+      ssr: true,
+      prerender: {
+        routes: async () => {
+          return [];
+        },
+      },
+    }),
+  ],
+}));
+```
+
+
+### Pre-Renderen nur von statischen Seiten
+
+Wenn man nur die statischen Seiten pre-rendern möchte, ohne den Server zu bauen, sollte das `static`-Flag auf `true` gesetzt werden.
+
+```TypeScript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import analog from '@analogjs/platform';
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    analog({
+      static: true,
+      prerender: {
+        routes: async () => [
+          //...
+        ],
+      },
+    }),
+  ],
+}));
+```
+
+
+## SSR abschalten
+
+AnalogJS unterstützt Server-Side Rendering sowohl während der Entwicklung als auch beim Erstellen für die Produktion. SSR ist in AnalogJS eher ein 'opt-out' als ein 'opt-in'. Sollte jedoch der Wunsch bestehen, SSR abzuschalten, kann dies in der [`vite.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/vite.config.ts) entsprechend angepasst werden.
+
+```TypeScript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import analog from '@analogjs/platform';
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => ({
+  //... 
+  plugins: [analog({ ssr: false })],
+}));
+```
+
+
+## Hybrides Rendering für Client-Only-Routen
+
+Auch besteht die Möglichkeit für hybrides Rendering mit bestimmten Routen, die nur auf der Clientseite gerendert werden und nicht auf dem Server, indem man in den `routeRules` eine `ssr`-Option definiert.
+
+```TypeScript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import analog from '@analogjs/platform';
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => ({
+  // ...other config
+  plugins: [
+    analog({
+      prerender: {
+        routes: ['/', '/404.html'],
+      },
+      nitro: {
+        routeRules: {
+          '/404.html': { ssr: false },
+        },
+      },
+    }),
+  ],
+}));
+```
+
+Hier wird zum Beispiel eine 404-Seite auf dem Client, als Sicherheit, gerendert.
