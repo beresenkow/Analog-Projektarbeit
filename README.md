@@ -1012,7 +1012,10 @@ Die Direktive gibt je nach Zustand des Formulars drei verschidene Ereignisse zur
 - `onError`, wenn das Formulat eine Fehlerantwort zurückgibt 
 - `onStateChange`, wenn das Formular abgesendet wird.
 
-[newsletter.page.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/newsletter.page.ts) stellt ein simples Beispiel für die Verwendung einer solchen FormAction dar, in der ein Formular zu einem Newsletter-Abo simuliert wird.
+[`newsletter.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/newsletter.page.ts) stellt ein simples Beispiel für die Verwendung einer solchen FormAction dar, in der ein Formular zu einem Newsletter-Abo simuliert wird.
+Aufzufunden über die [localhost:5173/landing](http://localhost:5173/landing) 
+
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1YJS9NaRc2CQsVpBgb8vIDWsA7QDCUgcr)
 
 ```bash
 // src/app/pages/newsletter.page.ts
@@ -1077,7 +1080,7 @@ Die `FormAction`-Direktive übermittelt die Formulardaten an den Server, wo sie 
 
 `onError`: Eine Methode, die aufgerufen wird, wenn ein Fehler bei der Übermittlung des Formulars auftritt. Sie setzt die errors-Signale mit den empfangenen Fehlern.
 
-![]()
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=12fUc9c2pH6dTTRb0lIrKTTSoRvwilWMy)
 
 Um die Formularaktion durchzuführen, muss eine `.server.ts`-Datein neben der `.page.ts`-Datei angelegt werden, die die asynchrone Aktionsfunktion zur Verarbeitung der Formularübermittlung enthält. In diesem Fall [newsletter.server.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/newsletter.server.ts)
 
@@ -1110,7 +1113,13 @@ Es gibt drei verschidene Antwortmöglichkeiten:
 - `redirect` wird verwendet, um nach erfolgreichem Absenden eines Formulars einen redirect auf einen andere Seite durchzuführen (`return redirect('/');`).
 - `fail` wird verwendet, um Formularvalidierungsfehler an den Client zurückzugeben.
 
- HIER MÜSSEN NOCH LOG AUSGABEN FÜR ERFOLGREICHE UND FEHLGESCHLAGENEN ÜBERTRAGUNGEN HINZUGEFÜGT WERDEN.
+Sollte zum Beispiel auf die Schaltfläche gedrückt werden, ohne, dass eine valide Mail-Adresse eingegeben wird, dann wird auch der eingestellte Fehlercode `422` gesendet mit der Nachricht: `email: Email is required`.
+
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1moFgGn4cl0hUXE2aX96CTMBGfc-JQwYp)
+
+Sollte aber eine valide Mail-Adresse eingegeben werden, dann wird ein `200`-er Code vom Handler gesendet und eine Dankesnachricht angezeigt.
+
+![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1cxKjYh-0UCVb_M5WcXDS9wahy2QKob9m)
 
 Es können auch `GET`-Requests verarbeitet werden, dann könnte der Rückgabewert wie folgt aussehen
 
@@ -1122,5 +1131,44 @@ return {
 ```
 
 # Static Site Generation
+
+AnalogJS erlaubt die Static Site Generation beim Fertigstellen (Deployment) der Anwendung, vor allem mit dem Pre-Renderen von Routen zu statischen HTML-Dateien zusammen mit der clientseitigen Anwendung.
+
+Das Pre-Renderen kann in der [`vite.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/vite.config.ts) in der `prerender`-Eigenschaft eingestellt werden, die dann zu Build Zeit gerendert werden. Diese können auch asynchron bereitgestellt werden. 
+
+Ebenfalls können Inhalte aus dem [`src/content`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/content)-Ordner zum Pre-Renderen hinzugefügt werden. Dafür kann man den `contentDir`-Wert verwenden, wie in dem Beispiel gezeigt. 
+Die Verzeichnisstruktur wird möglicherweise nicht 1:1 in den Pfaden der Anwendung widergespiegelt. Daher musst eine Transformationsfunktion übergeben werden, die die Dateipfade auf die URLs abbildet. Der zurückgegebene String sollte der URL-Pfad in der Anwendung sein. 
+Die Verwendung von transform ermöglicht es auch, bestimmte Routen herauszufiltern, indem man false zurückgibst.
+
+```bash
+// vite.config.ts
+import { defineConfig } from 'vite';
+import analog, { type PrerenderContentFile } from '@analogjs/platform';
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    analog({
+      prerender: {
+        routes: [
+          '/',
+          '/landing',
+          '/newsletter',
+          '/todo',
+          '/about',
+          '/blog',
+          {
+            contentDir: 'src/content/blog',
+            transform: (file: PrerenderContentFile) => {
+              const name = file.name;
+              return `/blog/${name}`;
+            },
+          },
+        ],
+      },
+    }),
+  ],
+}));
+```
 
 # Server Side Rendering
