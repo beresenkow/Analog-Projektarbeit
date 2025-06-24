@@ -1002,3 +1002,125 @@ Und alle diese Daten sind unter der `/api`-Schnittstelle zu finden. So befinden 
   },
 ]
 ```
+
+# Form Actions
+
+Um Formularübermittlungen zu handahben, oder zu validiern, kann die `FormAction`-Direktive von `@analogjs/router` verwendet werden. Die Direktive kümmert sich um das Sammeln der FormData und das Senden einer POST-Anfrage an den Server. 
+
+Die Direktive gibt je nach Zustand des Formulars drei verschidene Ereignisse zurück: 
+- `onSuccess`, wenn das Formular auf dem Server verarbeitet wird und eine Erfolgreiche Antwort zurückgibt 
+- `onError`, wenn das Formulat eine Fehlerantwort zurückgibt 
+- `onStateChange`, wenn das Formular abgesendet wird.
+
+[newsletter.page.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/newsletter.page.ts) stellt ein simples Beispiel für die Verwendung einer solchen FormAction dar, in der ein Formular zu einem Newsletter-Abo simuliert wird.
+
+```bash
+// src/app/pages/newsletter.page.ts
+import { Component, signal } from '@angular/core';
+
+import { FormAction } from '@analogjs/router';
+
+type FormErrors =
+  | {
+      email?: string;
+    }
+  | undefined;
+
+@Component({
+  selector: 'app-newsletter-page',
+  standalone: true,
+  imports: [FormAction],
+  template: `
+    <h3>Newsletter Signup</h3>
+
+    @if (!signedUp()) {
+      <form method="post"
+        (onSuccess)="onSuccess()"
+        (onError)="onError($any($event))"
+        (onStateChanges)="errors.set(undefined)"
+      >
+        <div>
+          <label for="email"> Email </label>
+          <input type="email" name="email" autocomplete="off" />
+        </div>
+
+        <button class="button" type="submit">Submit</button>
+      </form>
+
+      @if (errors()?.email) {
+        <p>{{ errors()?.email }}</p>
+      }
+    } @else {
+      <div>Thanks for signing up!</div>
+    }
+  `,
+})
+export default class NewsletterComponent {
+  signedUp = signal(false);
+  errors = signal<FormErrors>(undefined);
+
+  onSuccess() {
+    this.signedUp.set(true);
+  }
+
+  onError(result?: FormErrors) {
+    this.errors.set(result);
+  }
+}
+```
+
+Die `FormAction`-Direktive übermittelt die Formulardaten an den Server, wo sie von einem Handler verarbeitet werden.
+
+`FormErrors`ist hierbei ein benutzerdefineierter Typ mit einer `email`-Eigenschaft, die aber auch `undefined` sein kann, um Fehler im zusammenhang mit der FormAction zu typisieren.
+
+`onSuccess`: Eine Methode, die aufgerufen wird, wenn das Formular erfolgreich übermittelt wurde. Sie setzt signedUp auf true.
+
+`onError`: Eine Methode, die aufgerufen wird, wenn ein Fehler bei der Übermittlung des Formulars auftritt. Sie setzt die errors-Signale mit den empfangenen Fehlern.
+
+![]()
+
+Um die Formularaktion durchzuführen, muss eine `.server.ts`-Datein neben der `.page.ts`-Datei angelegt werden, die die asynchrone Aktionsfunktion zur Verarbeitung der Formularübermittlung enthält. In diesem Fall [newsletter.server.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/newsletter.server.ts)
+
+```bash
+// src/app/pages/newsletter.server.ts
+import {
+  type PageServerAction,
+  json,
+  fail,
+  redirect,
+} from '@analogjs/router/server/actions';
+import { readFormData } from 'h3';
+
+export async function action({ event }: PageServerAction) {
+  const body = await readFormData(event);
+  const email = body.get('email') as string;
+
+  if (!email) {
+    return fail(422, { email: 'Email is required' });
+  }
+
+  // In the server action, you can use access environment variables, read cookies, and perform other server-side only operations.
+
+  return json({ type: 'success' });
+}
+```
+
+Es gibt drei verschidene Antwortmöglichkeiten:
+- `json` wird verwendet, um eine JSON-Antwort an den Client zu senden, wie in dem Vorangegangenen Beispiel.
+- `redirect` wird verwendet, um nach erfolgreichem Absenden eines Formulars einen redirect auf einen andere Seite durchzuführen (`return redirect('/');`).
+- `fail` wird verwendet, um Formularvalidierungsfehler an den Client zurückzugeben.
+
+ HIER MÜSSEN NOCH LOG AUSGABEN FÜR ERFOLGREICHE UND FEHLGESCHLAGENEN ÜBERTRAGUNGEN HINZUGEFÜGT WERDEN.
+
+Es können auch `GET`-Requests verarbeitet werden, dann könnte der Rückgabewert wie folgt aussehen
+
+```bash
+return {
+  loaded: true,
+  searchTerm: `${query['search']}`,
+};
+```
+
+# Static Site Generation
+
+# Server Side Rendering
