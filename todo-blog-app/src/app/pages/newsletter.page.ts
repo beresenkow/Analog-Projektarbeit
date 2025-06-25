@@ -30,14 +30,14 @@ type FormErrors =
         <button class="button" type="submit">Submit</button>
       </form>
 
-      <a routerLink="/">Home</a>
-
       @if (errors()?.email) {
         <p>{{ errors()?.email }}</p>
       }
     } @else {
       <div>Thanks for signing up!</div>
     }
+
+    <a routerLink="/">Home</a>
   `,
 })
 export default class NewsletterComponent {

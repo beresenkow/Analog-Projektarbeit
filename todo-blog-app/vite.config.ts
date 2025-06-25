@@ -29,7 +29,21 @@ export default defineConfig(({ mode }) => ({
         },
       ],
     },
+    nitro: {
+        routeRules: {
+          '/todo/**': { ssr: false },
+          '/newsletter': { ssr: false },
+          '/landing': { ssr: false },
+        },
+      },
   })],
+  ssr: {
+    noExternal: [
+      'apollo-angular', // npm package import
+      'apollo-angular/**', // npm package import along with sub-packages
+      '@spartan-ng/**', // libs under the npmScope inside an Nx workspace
+    ],
+  },
   test: {
     globals: true,
     environment: 'jsdom',
