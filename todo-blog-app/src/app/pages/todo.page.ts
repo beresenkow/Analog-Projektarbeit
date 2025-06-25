@@ -1,12 +1,13 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, inject, signal } from "@angular/core";
 import { RouterLink, RouterOutlet } from "@angular/router";
 import { TodoService, Todo } from "../todo.services";
 import { FormsModule } from '@angular/forms';
-import { injectContentFiles } from '@analogjs/content';
+import { injectContent, injectContentFiles } from '@analogjs/content';
 import { BlogPost } from '../models/post';
 import { Router } from '@angular/router';
 import { FormAction } from '@analogjs/router';
+import { finalize } from 'rxjs';
 
 type FormErrors =
   | {
@@ -127,6 +128,7 @@ export default class TodoPage {
   description: string = '';
   linkedBlog: string = '';
 
+  post$ = injectContent<BlogPost>();
   posts = injectContentFiles<BlogPost>();
   options: { value: string; label: string }[] = [];
 
@@ -149,6 +151,13 @@ export default class TodoPage {
 
   constructor(private router: Router) {
     this.loadTodos();
+
+    this.post$.pipe(
+      finalize(() => console.log('Observable finalized or an error has occured.'))
+    ).subscribe(() => {
+      this.loadTodos();
+    });
+
     this.loadBlogPosts();
   }
 

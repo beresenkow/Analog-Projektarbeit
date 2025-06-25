@@ -2,6 +2,9 @@ import { Component, inject } from "@angular/core";
 import { RouterLink, RouterOutlet } from "@angular/router";
 import { TodoService, Todo } from "../todo.services";
 import { HttpClient } from '@angular/common/http';
+import { finalize } from "rxjs";
+import { injectContent } from "@analogjs/content";
+import { BlogPost } from "../models/post";
 
 @Component({
     standalone: true,
@@ -23,13 +26,18 @@ import { HttpClient } from '@angular/common/http';
     `]
 })
 export default class LandingPage {
+  post$ = injectContent<BlogPost>();
   private todoService = inject(TodoService);
   private http = inject(HttpClient);
 
   todos: Todo[] = [];
 
   constructor() {
-    this.loadTodos();
+    this.post$.pipe(
+      finalize(() => console.log('Observable finalized or an error has occured.'))
+    ).subscribe(() => {
+      this.loadTodos();
+    });
   }
 
   signIn() {
