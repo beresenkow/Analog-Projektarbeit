@@ -16,6 +16,19 @@ Analog bietet folgende Funktionen:
 Weitere Informationen in der [Analog Doku](https://analogjs.org/docs).
 
 
+# Inhaltsverzeichnis
+
+- [Projekt](#projekt)
+  - [Projekt Setup](#projekt-setup)
+  - [Projekt Struktur](#projekt-struktur)
+- [Routing in AnalogJS](#routing-in-analogjs)
+  - [File Base Routing in AnalogJS](#file-base-routing-in-analogjs)
+  - [Routen definieren in AnalogJS](#routen-definieren-in-analogjs)
+
+
+# Projekt
+
+
 ## Projekt Setup
 
 Für die genaueren Details, wie das Projekt mit analogJS und Prisma aufgesetzt werden soll, den Hinweisen [hier](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/README.md) folgen.
@@ -119,7 +132,7 @@ Danach sind alle Routen über ihren Dateinamen erreichbar. Das file-based Routin
 [`index.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/index.page.ts) stellt dabei die Index Route dar, die unter [localhost:5173/](http://localhost:5173/) erreichbar ist.
 
 
-# Routen definieren in analogJS
+# Routen definieren in AnalogJS
 
 
 ## Definieren von Index-Routen
