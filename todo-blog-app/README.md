@@ -8,6 +8,8 @@ First move to this directory `cd todo-blog-app`.
 
 Run `npm install` to install the application dependencies.
 
+Run `npx prisma generate` to generate a database from a schema.
+
 ## Development
 
 Run `npm start` for a dev server. Navigate to `http://localhost:5173/`. The application automatically reloads if you change any of the source files.
@@ -23,8 +25,6 @@ Run `npm run test` to run unit tests with [Vitest](https://vitest.dev).
 # Prisma
 
 ## Database setup
-
-Run `npm install prisma --save-dev` and `npm install @prisma/client` to install prisma.
 
 Run `npx prisma init` to initialize the prisma database.
 
