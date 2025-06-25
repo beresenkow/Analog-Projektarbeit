@@ -18,23 +18,42 @@ Weitere Informationen in der [Analog Doku](https://analogjs.org/docs).
 
 # Inhaltsverzeichnis
 
-- [Projekt](#projekt)
-  - [Projekt Setup](#projekt-setup)
-  - [Projekt Struktur](#projekt-struktur)
-- [Routing in AnalogJS](#routing-in-analogjs)
-  - [File Base Routing in AnalogJS](#file-base-routing-in-analogjs)
-  - [Routen definieren in AnalogJS](#routen-definieren-in-analogjs)
+- [1. Projekt](#1-projekt)
+  - [1.1 Projekt Setup](#11-projekt-setup)
+  - [1.2 Projekt Struktur](#12-projekt-struktur)
+- [2. File Based Routing in AnalogJS](#2-file-based-routing-in-analogjs)
+- [3. Routen definieren in AnalogJS](#3-routen-definieren-in-analogjs)
+  - [3.1 Definieren von Index-Routen](#31-definieren-von-index-routen)
+  - [3.2 Definieren von statischen Routen in AnalogJS](#32-definieren-von-statischen-routen-in-analogjs)
+  - [3.3 Hinweise zu verschachtelten Routen](#33-hinweise-zu-verschachtelten-routen)
+  - [3.4 Definieren von dynamischen Routen in AnalogJS](#34-definieren-von-dynamischen-routen-in-analogjs)
+- [4. Übergeordnete und Untergeordnete Routen mit dynamischen Parametern (Eltern-Kind-Prinzip)](#4-übergeordnete-und-untergeordnete-routen-mit-dynamischen-parametern-eltern-kind-prinzip)
+- [5. Routen von Metadaten](#5-routen-von-metadaten)
+- [6. Catch-All-Routen](#6-catch-all-routen)
+- [7. Markdown als Routen](#7-markdown-als-routen)
+  - [7.1 Content Routen definieren](#71-content-routen-definieren)
+  - [7.2 Content Dateien definieren](#72-content-dateien-definieren)
+- [8. API Routen](#8-api-routen)
+  - [8.1 Datenbanken und API-Routen](#81-datenbanken-und-api-routen)
+- [9. Form Actions](#9-form-actions)
+- [10. Static Site Generation (SSG) und Server Side Rendering (SSR)](#10-static-site-generation-ssg-und-server-side-rendering-ssr)
+  - [10.1 SSG/SSR: Pre-Rendering von Routen](#101-ssgssr-pre-rendering-von-routen)
+    - [10.1.1 Pre-Renderen nur von statischen Seiten](#1011-pre-renderen-nur-von-statischen-seiten)
+  - [10.2 SSR abschalten](#102-ssr-abschalten)
+  - [10.3 Hybrides Rendering für Client-Only-Routen](#103-hybrides-rendering-für-client-only-routen)
+- [11. Fazit](#11-fazit)
+  - [11.1 Stärken von AnalogJS](#111-stärken-von-analogjs)
+  - [11.2 Schwächen von AnalogJS](#112-schwächen-von-analogjs)
 
 
-# Projekt
+## 1. Projekt
 
-
-## Projekt Setup
+### 1.1 Projekt Setup
 
 Für die genaueren Details, wie das Projekt mit analogJS und Prisma aufgesetzt werden soll, den Hinweisen [hier](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/README.md) folgen.
 
 
-## Projekt Struktur
+### 1.2 Projekt Struktur
 
 ```bash
 src/
@@ -97,10 +116,7 @@ src/
 ```
 
 
-# Routing in AnalogJS
-
-
-## File Base Routing in AnalogJS
+## 2. File Based Routing in AnalogJS
 
 Für das file-based Routing muss die `provideFileRouter()`-Funktion in dem `providers`-Array in [`app.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/app.config.ts) hinzugefügt werden, beim Starten der Anwendung.
 
@@ -132,10 +148,10 @@ Danach sind alle Routen über ihren Dateinamen erreichbar. Das file-based Routin
 [`index.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/index.page.ts) stellt dabei die Index Route dar, die unter [localhost:5173/](http://localhost:5173/) erreichbar ist.
 
 
-# Routen definieren in AnalogJS
+## 3. Routen definieren in AnalogJS
 
 
-## Definieren von Index-Routen
+### 3.1 Definieren von Index-Routen
 
 Index-Routen werden über einfache Klammern im Ordner- bzw. Dateinamen definiert.
 
@@ -144,7 +160,7 @@ So definiert z. B. `src/app/pages/(home).page.ts` die Index-Route `/`.
 Ein Beispiel für solche Index-Routen in der Anwendung, sind sämtliche Routen im [`src/server/routes/api/todos`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api/todos)-Verzeichnis, die HTTP-Methoden darstellen. Dies vereinfacht die Aufrufe dieser Methoden bei HTTP-Anfragen.
 
 
-## Definieren von statischen Routen in analogJS
+### 3.2 Definieren von statischen Routen in analogJS
 
 Ein Beispiel für eine statische Route ist die [`landing.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/landing.page.ts)-Seite. Diese nimmt keine dynamischen Werte an und stellt eine simple Landing Page dar.
 Dementsprechend reicht es einfach diese Datei im [`/src/app/pages`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/app/pages)-Ordner zu erstellen und über [localhost:5173/landing](http://localhost:5173/landing) zu erreichen.
@@ -182,7 +198,7 @@ export default class LandingPage {
 Bei statischen Routen reicht es einfach den Dateiname als Pfad der Route zu verwenden.
 
 
-## Hinweise zu verschachtelten Routen
+### 3.3 Hinweise zu verschachtelten Routen
 
 Es lassen sich auch verschachtelte statische, sowie dynamische Routen auf zwei Arten definieren: 
 - Über Router-Dateien in Ordnern, z. B. `src/app/pages/about/team.page.ts` 
@@ -192,7 +208,7 @@ Beide Varianten führen zum selben Ziel, einer `/about/team`-Route.
 Ein Beispiel für solche verschachtelte Routen in der Anwendung, die mit der Punktnotation arbeiten, sind sämtliche Routen im [`src/server/routes/api/todos`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/server/routes/api/todos)-Verzeichnis. Wobei anzumerken ist, dass es sich um eine Kombination aus beiden Varianten handelt und es sich bei diesen Routen nicht um statische sondern dynamische Routen handelt.
 
 
-## Definieren von dynamischen Routen in analogJS
+### 3.4 Definieren von dynamischen Routen in analogJS
 
 Wenn man eine Seite erstellen möchte, die dynamische Parameter oder Ähnliches verwendet, kann man, wie bei den statischen auf flache Routen zurückgreifen, oder ebenso auf verschachtelte Routen zurückgreifen.
 
@@ -221,7 +237,7 @@ Diese Seite nimmt einen beliebigen Wert an und zeigt diesen auf der Seite an, si
 ![IMG_localhost:5173/parameter/1](https://drive.google.com/uc?export=view&id=1oiUP6Sb_LvajG-rTFcJYy0RDukaDIYaD)
 
 
-# Übergeordnete und Untergeordnete Routen mit dynamischen Parametern (Eltern-Kind-Prinzip)
+## 4. Übergeordnete und Untergeordnete Routen mit dynamischen Parametern (Eltern-Kind-Prinzip)
 
 Diese werden auch als Layout-Routen bezeichnet. Hierfür wird eine übergeordnete Seite benötigt, in diesem Fall die [`blog.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog.page.ts):
 
@@ -324,7 +340,7 @@ export default class BlogPostPage {
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=1BnQzzawInXUcIVbR93VkO6-G6N36JPnP)
 
 
-# Routen von Metadaten
+## 5. Routen von Metadaten
 
 Zusätzliche Metadaten können für jede Route mit dem `RouteMeta`-Typ definiert werden, wie Seitentitel, Guards, Resolver, Provider usw.
 
@@ -369,7 +385,7 @@ export const routeMeta: RouteMeta = {
 Dieses Beispiel würde den Browser dazu auffordern alle 30 Sekunden einen Refresh durchzuführen.
 
 
-# Catch-All-Routen
+## 6. Catch-All-Routen
 
 Catch-All-Routen werden definiert, indem der Dateiname als Routenpfad verwendet wird, wobei drei Punkte in eckigen Klammern vorangestellt werden.
 
@@ -413,10 +429,9 @@ export default class PageNotFoundPage {}
 Dies ist ein simples Beispiel für eine `404-Seite`, die in der `RouteMeta` einen `404`-Statuscode an den Server sendet. 
 
 
-# Markdown als Routen
+## 7. Markdown als Routen
 
-
-## Content Routen definieren
+### 7.1 Content Routen definieren
 
 AnalogJS unterstützt die Verwendung von Content-Routen, bei denen Markdown-Inhalte als Routen definiert werden können.
 
@@ -446,7 +461,7 @@ Dies ermöglicht es, dass [`src/app/pages/about.md`](https://github.com/beresenk
 ![IMG_localhost:5173/about](https://drive.google.com/uc?export=view&id=188ezG6VevOVcRFMehJKgUCVvT0BQSwhA)
 
 
-## Content Dateien definieren
+### 7.2 Content Dateien definieren
 
 Für mehr Flexibilität Befinden sich alle Blogeinträge dieser Anwendung als Content Daten im [`src/content`](https://github.com/beresenkow/Analog-Projektarbeit/tree/main/todo-blog-app/src/content)-Ordner hinterlegen.
 
@@ -562,7 +577,7 @@ export default class BlogPostPage {
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=15krF4z3WMf0CRRyjeoCS9wZVGziQnDet)
 
 
-# API Routen
+## 8. API Routen
 
 AnalogJS unterstützt auch API-Routen, die verwendet werden können, um Daten und Inhalte für die Anwendung bereitzustellen.
 
@@ -573,7 +588,7 @@ Hier lassen sich viele APIs implementieren, darunter XML-Inhalte, Catch-All-Rout
 Für die Handhabung der Todos in der Anwendung wird ein einfaches Schema mit [PrismaDB](https://www.prisma.io/) implementiert.
 
 
-## Datenbanken und API-Routen
+### 8.1 Datenbanken und API-Routen
 
 Für die Handbabung von den Todos in der Anwendung wird ein simples Schema mit PrismaDB implementiert unter [`schema.prisma`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/prisma/schema.prisma)
 
@@ -1035,7 +1050,7 @@ Und alle diese Daten sind unter der `/api`-Schnittstelle zu finden. So befinden 
 ```
 
 
-# Form Actions
+## 9. Form Actions
 
 Um Formularübermittlungen zu handhaben oder zu validieren, kann die `FormAction`-Direktive von `@analogjs/router` verwendet werden. Die Direktive kümmert sich um das Sammeln der FormData und das Senden einer POST-Anfrage an den Server. 
 
@@ -1160,12 +1175,12 @@ return {
 ```
 
 
-# Static Site Generation (SSG) und Server Side Rendering (SSR)
+## 10. Static Site Generation (SSG) und Server Side Rendering (SSR)
 
 AnalogJS ermöglicht die Static Site Generation beim Deployment der Anwendung, insbesondere durch das Pre-Rendering von Routen zu statischen HTML-Dateien zusammen mit der clientseitigen Anwendung.
 
 
-## SSG/SSR: Pre-Rendering von Routen
+### 10.1 SSG/SSR: Pre-Rendering von Routen
 
 Das Pre-Rendering kann in der [`vite.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/vite.config.ts) in der `prerender`-Eigenschaft konfiguriert werden, um die Seiten zur Build-Zeit zu rendern. Diese können auch asynchron bereitgestellt werden. 
 
@@ -1230,7 +1245,7 @@ export default defineConfig(({ mode }) => ({
 ```
 
 
-### Pre-Renderen nur von statischen Seiten
+#### 10.1.1 Pre-Renderen nur von statischen Seiten
 
 Wenn man nur die statischen Seiten pre-rendern möchte, ohne den Server zu bauen, sollte das `static`-Flag auf `true` gesetzt werden.
 
@@ -1255,7 +1270,7 @@ export default defineConfig(({ mode }) => ({
 ```
 
 
-## SSR abschalten
+### 10.2 SSR abschalten
 
 AnalogJS unterstützt Server-Side Rendering sowohl während der Entwicklung als auch beim Erstellen für die Produktion. SSR ist in AnalogJS eher ein 'opt-out' als ein 'opt-in'. Sollte jedoch der Wunsch bestehen, SSR abzuschalten, kann dies in der [`vite.config.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/vite.config.ts) entsprechend angepasst werden.
 
@@ -1272,7 +1287,7 @@ export default defineConfig(({ mode }) => ({
 ```
 
 
-## Hybrides Rendering für Client-Only-Routen
+### 10.3 Hybrides Rendering für Client-Only-Routen
 
 Auch besteht die Möglichkeit für hybrides Rendering mit bestimmten Routen, die nur auf der Clientseite gerendert werden und nicht auf dem Server, indem man in den `routeRules` eine `ssr`-Option definiert.
 
@@ -1300,3 +1315,51 @@ export default defineConfig(({ mode }) => ({
 ```
 
 Hier wird zum Beispiel eine 404-Seite auf dem Client, als Sicherheit, gerendert.
+
+
+## 11. Fazit
+
+Nachdem die Grundlagen und Konzepte von AnalogJS präsentiert und an einem kleinen Beispiel demonstriert wurden, lässt sich ein eindeutiges Fazit ziehen.
+
+
+### 11.1 Stärken von AnalogJS
+
+Das Framework präsentiert eine gute Idee und größtenteils auch eine gute Umsetzung dieser. Besonders flüssig und einfach lässt sich mit dem File-based-Router arbeiten. Dennoch gibt es vereinzelt Schwierigkeiten mit AnalogJS, vor allem in Bezug auf die Server-Seite der Anwendung.
+
+Das file-based-Routing funktioniert einwandfrei. Nachdem das Projekt mit AnalogJS aufgesetzt wurde und die nötigen Komponenten importiert sind, lässt sich eine Anwendung mit vielen Seiten/Routen sehr leicht aufbauen, ohne manuell Router-Module oder Ähnliches aufsetzen zu müssen. Ein einfacher `routerLink` reicht völlig aus.
+
+Auch verschachtelte Routen lassen sich wesentlich leichter im Vergleich zu Angular implementieren. Es reicht aus, eine Ordner- bzw. Dateistruktur anzulegen, die diese Verschachtelung darstellt, und über ein `routerLink` untergeordnete Routen in einem `router-outlet` anzuzeigen.
+
+Daneben gibt es auch noch die möglicherweise interessanteste Funktion des Routens von rohen Markdown-Dateien, die vollständig als eigenständige Route interpretiert werden können oder als untergeordnete Routen auch verschachtelt dargestellt werden können.
+
+Markdown-Dateien können auch mit Metadaten ausgestattet werden und mit AnalogJS-Komponenten ausgelesen werden, teilweise auch ohne die Markdown-Inhalte selbst zu laden.
+
+Auch die Möglichkeit des Routens von Metadaten kann einiges an Entwicklungsarbeit sparen.
+
+
+Dass auf der Serverseite auch das file-based-Routing funktioniert, ist bei kleineren API-Aufrufen angenehm, neben der Tatsache, dass kein externer Server-Prozess gestartet werden muss, sondern alles auf `localhost:5713` läuft.
+
+
+### 11.2 Schwächen von AnalogJS
+
+Nichtsdestotrotz muss gesagt werden, dass AnalogJS ein Framework ist, das sich an eine sehr bestimmte Zielgruppe orientiert, nämlich die, die eine Blog-Anwendung (möglicherweise wie das hier vorgestellte Beispiel) erstellen möchte. Eine Anwendung, in der möglicherweise viel Content existiert, der im Markdown-Format vorliegt, und da ist die Einfachheit des file-based-Routings hervorragend. Allerdings ist das auch das Maximum, was das Framework hergibt.
+
+Unter Umständen eignet sich AnalogJS auch für das Prototyping, wenn schnell ein Prototyp für eine App entwickelt werden muss, um einem potenziellen Kunden ein visuelles Beispiel zu geben, ohne damit in Produktion zu gehen. Die Umsetzung sollte dann jedoch mit Angular oder ähnlichem erfolgen.
+
+Für größere bzw. komplexere Projekte ist AnalogJS momentan noch zu fehleranfällig.
+
+Beim Entwickeln muss in manchen Browsern öfter der Cache geleert werden. Beim Beispiel der Datenbankzugriffe muss für jede einzelne HTTP-Methode eine eigene Datei/Route erstellt werden, was in einem Verzeichnisdiagramm zwar gut aussieht, aber in der Wartung des Codes einen immens höheren Arbeitsaufwand erfordert.
+
+Auch gibt es zum Beispiel in diesem Projekt das Problem, dass sich der Build-Prozess nicht erfolgreich durchführen lässt, da Prisma, eigentlich eine gute Datenbankwahl für Angular, mit `CommonJS` kompiliert wird und AnalogJS mit Nitros `esbuild` von Vite kompiliert wird. Dies führt zu einem fatalen Fehler, der das gesamte Projekt lahmlegt.
+
+```bash
+TypeError [ERR_INVALID_MODULE_SPECIFIER]: Invalid module ".prisma" is not a valid package name imported from ...\@prisma\client\default.js
+```
+
+Hiernach sind Caches kaputt, und die Anwendung läuft nicht mal mehr korrekt mit `npm start` unter `localhost:5713`. Es bleibt nur noch der Rollback und Neuinstallation von Modulen.
+
+Eine konkrete Lösung für dieses Problem habe ich noch nicht gefunden, da dies sehr viele Folgeschwierigkeiten nicht ausschließt.
+
+Darum ist die Empfehlung, AnalogJS zu nutzen, wie schon bereits erwähnt, nur wenn sehr kleine und sehr einfache Projekte umgesetzt werden sollen, mit möglichst ohne bzw. mit sehr wenig Server-Logik.
+
+Klar, man kann auf die Nitro-Server-Logik auch verzichten und Angular Services für die Server-Seite nutzen. Allerdings sollte man dann überlegen, ob man AnalogJS überhaupt benötigt, da damit die Vorteile von AnalogJS bzw. der Grund, warum man sich dafür entscheidet, zum größten Teil verloren gehen.
