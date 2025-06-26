@@ -717,7 +717,7 @@ export class TodoService {
 
 #### 8.1.1 Beispiel 1
 
-Die Seite [`todo.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/todo.page.ts) nutzt diese Services in der Anwendung zur Handhabung von Todos. Hier können die einzelnen Todos angezeigt, bearbeitet und gelöscht werden. Neue Todos können erstellt und als abgeschlossen markiert werden.
+Die Seite [`todo.page.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/todo.page.ts) nutzt diese Services in der Anwendung zur Handhabung von Todos. Hier können die einzelnen Todos angezeigt, bearbeitet und gelöscht werden. Neue Todos können erstellt und als abgeschlossen markiert werden. [localhost:5713/todo](http://localhost:5713/todo).
 
 ```TypeScript
 // src/app/pages/todo.page.ts
@@ -947,14 +947,20 @@ export default class TodoPage {
 }
 ```
 
-  TODO: BESCHREIBUNG DER ROUTE 
+Diese Route erstellt eine Seite, die alle Todos in einer Liste anzeigt, die über eine checkbox als erledigt markiert werden können. Über `updateTodo()` wird diese Änderung auch in der Datenbank gespeichert.
+
+Eine Schaltfläche `Create new Todo` öffnet ein Form, in der eine neue Todo erstellt werden kann, dieses wird über `addTodoFromInput()` in die Datenbank hinzugefügt. 
+
+Eine Schaltfläche `Edit Todos` gibt eine andere Ansicht der Liste, in der es die Möglichkeit gibt ein Todo zu löschen und diese Aktion wird von `deleteTodo()` durchgeführt. Auch gibt es die Möglichkeit, bereits existierende Todos hier zu bearbeiten, dafür gibt es ebenfalls ein ein eigenes Formular und wird ebenfalls von `updateTodo()` in der Datenbank gespeichert.
+
+Alle dieser Methoden nutzen [`todo.services.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/todo.services.ts) für die Datenbankoperationen.
 
 ![IMG_localhost:5173/todo](https://drive.google.com/uc?export=view&id=1UGTztLaLUTK2ktdahoVW8gVn0afcxFSl)
 
 
 #### 8.1.2 Beispiel 2
 
-Auch in den einzelnen Blogeinträgen in [[slug].page.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/%5Bslug%5D.page.ts) wird auf diese Todos zugegriffen. Hier werden jedoch nur die Todos angezeigt, die eine Verknüpfung zu diesem Blogeintrag haben.
+Auch in den einzelnen Blogeinträgen in [[slug].page.ts](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/pages/blog/%5Bslug%5D.page.ts) wird auf diese Todos zugegriffen. Hier werden jedoch nur die Todos angezeigt, die eine Verknüpfung zu diesem Blogeintrag haben. [localhost:5713/blog/die-bedeutung-von-lebenslangem-lernen](http://localhost:5713/blog/die-bedeutung-von-lebenslangem-lernen).
 
 ```TypeScript
 // src/app/pages/blog/[slug].page.ts
@@ -1047,7 +1053,7 @@ export default class BlogPostPage {
 }
 ```
 
-  TODO: BESCHREIBUNG DER ROUTE 
+In dieser Route sind die Todos nach ihrem Eintrag für `linkedBlog` gefiltert. Hier werden nur die Todos angezeigt, die mit dem aktuellen Blogeintrag verknüpft sind. Die Funktionen beschränken sich auf das Abhaken von Todos. Wie im ersten Beispiel ruft die Funktion `updatedTodo()` den [`todo.services.ts`](https://github.com/beresenkow/Analog-Projektarbeit/blob/main/todo-blog-app/src/app/todo.services.ts) auf, um die Daten zu persistieren
 
 ![IMG_localhost:5173/blog/die-bedeutung-con-lebenslangem-lernen](https://drive.google.com/uc?export=view&id=15krF4z3WMf0CRRyjeoCS9wZVGziQnDet)
 
